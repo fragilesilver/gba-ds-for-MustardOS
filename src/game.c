@@ -2750,7 +2750,7 @@ static void hint_dismiss(void) {
 
 static void draw_hint(void) {
 	if (hintState == 0) {
-		if (cfg->barPinned || !cfg->barHint) {
+		if (cfg->barPinned || !cfg->barHint || !ui_touch_available()) { /* (no touchscreen: nothing to swipe) */
 			hintState = 2;
 			return;
 		}
@@ -7005,6 +7005,20 @@ void prefs_save(Config* cfg) {
 
 static bool gameTexAll = true; /* upload the game's frame to every view next time */
 
+/* the screens worked out again (Layout, or Swap Screens with layout = focus,
+ * where the game's part is the larger one): their pictures, overlays and the
+ * game's frame on every view */
+static void overlays_reload(void);
+static void ss_switch(const char* rom, const char* code);
+static void relayout(void) {
+	ui_layout();
+	overlays_reload();
+	gameTexAll = true;
+	if (emu.fb) {
+		for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, GBA_W * 4);
+	}
+}
+
 static void swap_screens(void) {
 	/* the game moves to the other view, whose copy of the frame may be old
 	 * (frames go only where the game is shown; the menu uploads none) */
@@ -7016,6 +7030,7 @@ static void swap_screens(void) {
 		return;
 	}
 	cfg->swap = !cfg->swap;
+	if (ui_layout_focus()) relayout(); /* (the larger part follows the game) */
 	commit_current("swap"); /* (the layer in force: this game's own, or all games') */
 }
 
@@ -7453,6 +7468,15 @@ static void setting_applied(const Setting* st) {
 		rebuild_textures(); /* (every picture given again, through it or not) */
 	} else if (!strcmp(k, "lcd_ghosting")) {
 		ghostHave = false;
+	} else if (!strcmp(k, "layout")) {
+		relayout();
+		/* (what the second screen does depends on there being one: the HUD
+		 * split, the pinball table's two copies... set up again) */
+		char code[sizeof(subCode)];
+		snprintf(code, sizeof(code), "%s", subCode); /* (ss_switch writes subCode) */
+		ss_switch(romPath, code);
+	} else if (!strcmp(k, "swap") && ui_layout_focus()) {
+		relayout();
 	} else if (!strcmp(k, "swap")) {
 		if (emu.fb) {
 			for (int i = 0; i < nViews; ++i) ui_update_texture(gameTex[i], emu.fb, GBA_W * 4);
@@ -7945,7 +7969,7 @@ enum GameExit game_run(Config* c, const char* rom, bool fromLibrary) {
 	uniCfg = before;
 	if (n) {
 		fprintf(stderr, "game settings: %d from %s\n", n, p.settings);
-		ui_layout_pictures();
+		ui_layout(); /* (its own layout, on one display, and the pictures' areas) */
 	}
 	enum GameExit x = game_run_inner(c, rom, fromLibrary);
 	ui_stick_dpad(true);
@@ -7958,7 +7982,7 @@ enum GameExit game_run(Config* c, const char* rom, bool fromLibrary) {
 		const Setting* st = config_setting_at(i);
 		if (config_key_per_game(st->key)) config_setting_copy(c, &uniCfg, st);
 	}
-	ui_layout_pictures();
+	ui_layout();
 	ui_brightness(c->brightTop, c->brightBottom);
 	return x;
 }
@@ -8009,6 +8033,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		const MapProfile* gp = profile_find(emu.gameCode);
 		pickProf = gp && gp->pick ? gp : NULL;
 		snprintf(subCode, sizeof(subCode), "%.4s", emu.gameCode);
+		/* layout = focus: a game with nothing for a second screen gets the whole display */
+		ui_focus_alone(!cfg->map || !gp);
 	}
 	ss_setup(rom, subCode);
 	for (int i = 0; i < nViews; ++i) {
@@ -8049,6 +8075,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ROW(PG_DISPLAY, "color_correction");
 	ROW(PG_DISPLAY, "lcd_ghosting");
 	if (ui_logo_custom(cfg, romPath, emu.gameCode)) ROW(PG_DISPLAY, "custom_logos"); /* the game has the player's own or a scraped logo (GEN-11) */
+	if (ui_one_display()) ROW(PG_SCREENS, "layout");
 	if (nScreens >= 2) ROW(PG_SCREENS, "swap");
 	ROW(PG_SCREENS, "screen_match");
 	ROW(PG_SCREENS, "screen_placement");

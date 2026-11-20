@@ -32,7 +32,7 @@ extern const char* const hotkeyNames[HK_COUNT]; /* quit, save_state, ... */
 enum { CL_PIXELATED, CL_FULL, CL_OFF };
 
 typedef struct Config {
-	char layout[16];   /* auto | span-h | span-v | dual | single */
+	char layout[16];   /* auto | span-h | span-v | dual | single | focus (one display: the game's part and the second screen's) */
 	bool swap;         /* map on the first (left/top) screen instead of the second */
 	char scale[16];    /* game: integer | fit | stretch */
 	char mapScale[16]; /* map:  integer | fit | stretch */

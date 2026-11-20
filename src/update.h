@@ -33,8 +33,10 @@ typedef struct {
 	bool autoOn;
 } UpdateInfo;
 
-/* (not in a side build, GBADS_SIDE: it would replace itself with the release) */
-#if !defined(__wasi__) && !defined(GBADS_SIDE)
+/* (not in a side build, GBADS_SIDE: it would replace itself with the release;
+ * nor in a build made for a system whose package the release isn't,
+ * GBADS_NO_UPDATES: muOS, scripts/build-muos.sh) */
+#if !defined(__wasi__) && !defined(GBADS_SIDE) && !defined(GBADS_NO_UPDATES)
 #define GBADS_UPDATES 1
 /* exeDir: the app's folder; argv: for the restart */
 void update_init(const Config* cfg, const char* exeDir, int argc, char** argv);

@@ -751,22 +751,32 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 	}
 	GameEntry* g = &games[sel];
 	load_thumbs(cfg, sel);
+	/* a screen taller than it is wide (layout = focus side by side, the second
+	 * screen's strip): the game's logo and notes under ours, the full width,
+	 * instead of beside it */
+	bool narrow = r.w < r.h;
+	int top = narrow ? m + headH + px * 10 : m;          /* the game's logo's top */
+	int right = r.w - m;                                 /* its right edge */
+	int roomW = narrow ? r.w - m * 2 : r.w - ourW - m * 3;
 	if (logoTex[0] || logoTex[1]) {
 		int gameH = headH * 2;
-		int maxW = r.w - ourW - m * 3;
+		int maxW = roomW;
 		int w = logoW * gameH / logoH, h = gameH;
 		if (w > maxW) w = maxW, h = logoH * maxW / logoW;
-		SDL_Rect a = { r.w - m - w, m + (gameH - h) / 2, w, h };
+		SDL_Rect a = { narrow ? (r.w - w) / 2 : r.w - m - w, top + (gameH - h) / 2, w, h };
 		ui_image(scr, logoTex, logoW, logoH, "stretch", &a);
 	} else if (g->supported) {
 		/* no logo for it yet (or none extracted for this game): its name in its place */
 		const MapProfile* prof = profile_find(g->code);
-		int gameH = headH * 2, maxW = r.w - ourW - m * 3;
-		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { r.w - m - maxW, m, maxW, gameH }, prof->title, px * 9, C_TEXT);
+		int gameH = headH * 2, maxW = roomW;
+		if (prof && prof->title) ui_title_block(scr, (SDL_Rect) { right - maxW, top, maxW, gameH }, prof->title, px * 9, C_TEXT);
 	}
 	/* (a game with no profile has no logo either: the note goes where a
 	 * game's logo would, at the top right, beside ours) */
-	if (!g->supported) ui_font_text(scr, TF_BODY, r.w - m, m + headH / 2, px * 5, "Single screen only: plays normally", C_DIM, 1);
+	if (!g->supported) {
+		if (narrow) ui_font_text(scr, TF_BODY, r.w / 2, top + headH / 2, px * 5, "Single screen only: plays normally", C_DIM, 0);
+		else ui_font_text(scr, TF_BODY, r.w - m, m + headH / 2, px * 5, "Single screen only: plays normally", C_DIM, 1);
+	}
 	/* a romhack, or a modified ROM, under the game's logo (GEN-8), patched
 	 * by a patch file beside it or not (GEN-9) */
 	uint32_t crc;
@@ -792,12 +802,15 @@ static void draw_preview(Config* cfg, int scr, int sel) {
 			default: break;
 			}
 		}
-		if (line[0]) ui_font_text(scr, TF_BODY, r.w - m, m + headH * 2 + px * 7, px * 4, line, C_DIM, 1);
+		if (line[0]) {
+			if (narrow) ui_font_text(scr, TF_BODY, r.w / 2, top + headH * 2 + px * 7, px * 4, line, C_DIM, 0);
+			else ui_font_text(scr, TF_BODY, r.w - m, m + headH * 2 + px * 7, px * 4, line, C_DIM, 1);
+		}
 	}
 
 	/* the resume point (the game screen only), or a note that there isn't one,
 	 * with clear space above (below the game's logo) and below (above the hints) */
-	int y = m + headH * 2 + px * 16;
+	int y = top + headH * 2 + px * 16;
 	SDL_Rect area = { m, y, r.w - m * 2, gy - px * 14 - y };
 	if (thumbTex[0] || thumbTex[1]) {
 		ui_image(scr, thumbTex, GBA_W, GBA_H, "fit", &area);
@@ -1332,7 +1345,7 @@ typedef struct {
 static const SetPage setPages[SP_SYSTEM] = {
 	{ N_("Games"), N_("Which games, names, saving"), { "show_all", "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
 	{ N_("Display"), N_("Scale, shader, theme, color"), { "scale", "map_scale", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "theme", "accent" } },
-	{ "Screens", N_("Placement, overlays"), { "swap", "screen_match", "screen_placement", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
+	{ "Screens", N_("Placement, overlays"), { "layout", "swap", "screen_match", "screen_placement", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
 	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
 	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "match_display", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
 	{ "Second screen", N_("The map and the logo"), { "map", "map_interval", "pinball_live" } },
@@ -1359,6 +1372,7 @@ static int page_settings(int page, const Setting** out, const char** ids) {
 		const char* k = setPages[page].keys[i];
 		const Setting* st = k[0] == '@' ? NULL : config_setting(k);
 		if (k[0] != '@' && (!st || (!strcmp(st->key, "performance") && !clocks_available()))) continue;
+		if (st && !strcmp(st->key, "layout") && !ui_one_display()) continue; /* (two panels: nothing to choose) */
 		ids[n] = k;
 		out[n++] = st;
 	}
@@ -1516,6 +1530,7 @@ static void setting_changed(Config* cfg, const Setting* st) {
 	if (!strncmp(st->key, "brightness_", 11)) ui_brightness(cfg->brightTop, cfg->brightBottom);
 	if (!strcmp(st->key, "show_all") || !strcmp(st->key, "name_tags")) setRescan = true;
 	if (!strcmp(st->key, "screen_match") || !strcmp(st->key, "screen_placement")) ui_layout_pictures();
+	if (!strcmp(st->key, "layout") || (!strcmp(st->key, "swap") && ui_layout_focus())) ui_layout();
 	fprintf(stderr, "setting: %s = %s (all games)\n", lines[0][0], lines[0][1]);
 }
 
@@ -2449,6 +2464,7 @@ static int keep_visible(int scr, int sel, int scroll) {
 
 bool library_run(Config* cfg, char* outPath, size_t outSize) {
 	storage_check(cfg);
+	ui_focus_alone(false); /* (layout = focus: the list and the preview, after a game that had the whole display) */
 
 	/* the last game played (reselected) */
 	char lastFile[1100], last[1024] = "";

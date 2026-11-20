@@ -82,6 +82,19 @@ void ui_stick_dpad(bool on);
 /* The pixels per inch of each screen, if known (0 if not). */
 float ui_screen_ppi(int screen);
 int ui_touch_screen(void); /* index into screens[] */
+/* One physical display (no second panel, not spanned by sway or BananaOS):
+ * where layout = single / focus apply (Settings > Screens > Layout). */
+bool ui_one_display(void);
+/* layout = focus is in force (one display split into the game's part and the
+ * second screen's; the larger part follows Swap Screens: ui_layout again
+ * after a swap) */
+bool ui_layout_focus(void);
+/* layout = focus for a game with nothing to show on a second screen (no
+ * second-screen support, or Second screen off): the game on the whole
+ * display (true), or the two parts again (false: the game list) */
+void ui_focus_alone(bool alone);
+/* A touchscreen to swipe on (or a desktop window's mouse): the quick bar's hint. */
+bool ui_touch_available(void);
 int ui_other_screen(void); /* the non-touch screen, or the touch screen if there's only one */
 
 /* Pump SDL events. Returns false when the app should quit. Pointer events are

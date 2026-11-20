@@ -61,6 +61,13 @@ static char userGuids[16][40]; /* the controllers.txt GUIDs */
 static int nUserGuids;
 static SDL_Joystick* rawJoys[8];
 static bool debug;
+/* One physical display (a single-screen handheld such as those muOS runs on,
+ * an Android phone or tablet without a second display, a desktop window):
+ * where layout = single or focus applies. Not under sway or BananaOS, where
+ * one window spans two panels. */
+static bool oneDisplay;
+static bool fullscreenWin; /* the window is the whole display (a device, not a desktop window) */
+static bool focusAlone;    /* layout = focus, for a game with nothing for a second screen: the whole display */
 #ifdef __ANDROID__
 static int lastTouchScreen = -1; /* the screen touches came from (Android: either display may have the panel) */
 #endif
@@ -469,6 +476,8 @@ bool ui_init(Config* c, bool wantDual) {
 	}
 	views[0].retained = true; /* drawn only when it changes, like the second screen */
 	fprintf(stderr, "android: %s\n", nViews == 2 ? "two screens" : "one screen (no second display)");
+	oneDisplay = nViews == 1 && !android_hinge_gap(w0, h0);
+	fullscreenWin = !getenv("GBADS_WINDOW");
 	ui_layout();
 	return true;
 #endif
@@ -488,6 +497,12 @@ bool ui_init(Config* c, bool wantDual) {
 		fprintf(stderr, "  display %d: %s, %dx%d at %d,%d\n", i, name ? name : "?", b.w, b.h, b.x, b.y);
 	}
 	fprintf(stderr, "touch devices: %d\n", SDL_GetNumTouchDevices());
+	/* (not the web build or GBADS_SCREENS tests: their window stands for a device's screens) */
+	oneDisplay = !(dual && displays >= 2) && !underSway && !getenv("SDL_BANANA_PANELS") && displays <= 1 && !getenv("GBADS_SCREENS");
+#ifdef __wasi__
+	oneDisplay = false;
+#endif
+	fullscreenWin = fullscreen;
 	if (dual && displays >= 2) {
 		nViews = 2;
 		if (!create_view(&views[0], 0, "GBA DS", true, 720, 480) ||
@@ -724,6 +739,36 @@ static void layout_screens(void) {
 		if (gap > 0) lay = h > w ? "span-v" : "span-h";
 		else lay = w >= h * 18 / 10 ? "span-h" : h >= w * 12 / 10 ? "span-v" : "single";
 	}
+	/* focus (one display, both screens; single-screen handhelds such as those
+	 * muOS runs on): the display split in two, the game's part two thirds of
+	 * it and the second screen's the rest, across whichever side gives the
+	 * game the larger picture (stacked on 640x480: 640x320 and 640x160, the
+	 * game at 2x and the map at 1x, pixel perfect; side by side on 16:9).
+	 * The larger part is always the game's: it follows Swap Screens. */
+	if (!strcmp(lay, "focus") && focusAlone) lay = "single";
+	if (!strcmp(lay, "focus")) {
+		int big = cfg->swap ? 1 : 0;
+		int hBig = h * 2 / 3, wBig = w * 2 / 3;
+		/* (by the whole-number scale it gets: on 1280x720 both give 3x, and
+		 * stacked leaves the second screen a wider strip than side by side) */
+		int kStack = (int) SDL_min((double) w / GBA_W, (double) hBig / GBA_H);
+		int kSide = (int) SDL_min((double) wBig / GBA_W, (double) h / GBA_H);
+		bool side = kSide > kStack;
+		nScreens = 2;
+		if (side) {
+			screens[big] = (Screen) { 0, { big ? w - wBig : 0, 0, wBig, h } };
+			screens[1 - big] = (Screen) { 0, { big ? 0 : wBig, 0, w - wBig, h } };
+		} else {
+			screens[big] = (Screen) { 0, { 0, big ? h - hBig : 0, w, hBig } };
+			screens[1 - big] = (Screen) { 0, { 0, big ? 0 : hBig, w, h - hBig } };
+		}
+		static char loggedF[64];
+		char lineF[64];
+		snprintf(lineF, sizeof(lineF), "%dx%d focus %s, game %dx%d", w, h, side ? "side by side" : "stacked",
+		         screens[big].rect.w, screens[big].rect.h);
+		if (strcmp(lineF, loggedF)) snprintf(loggedF, sizeof(loggedF), "%s", lineF), fprintf(stderr, "screens: one window, %s\n", lineF);
+		return;
+	}
 	static char logged[48];
 	char line[48];
 	snprintf(line, sizeof(line), "%dx%d %s gap %d", w, h, lay, gap);
@@ -762,8 +807,28 @@ uint64_t ui_ticks(void) {
 	return ticks;
 }
 
+bool ui_one_display(void) {
+	return oneDisplay;
+}
+
+void ui_focus_alone(bool alone) {
+	if (alone == focusAlone) return;
+	focusAlone = alone;
+	if (cfg && !strcmp(cfg->layout, "focus") && nViews == 1) ui_layout();
+}
+
+bool ui_layout_focus(void) {
+	return nViews == 1 && nScreens == 2 && !strcmp(cfg->layout, "focus");
+}
+
+bool ui_touch_available(void) {
+	return SDL_GetNumTouchDevices() > 0 || cfg->touchDevice[0] || !fullscreenWin;
+}
+
 int ui_touch_screen(void) {
 	if (nScreens < 2) return 0;
+	/* focus: one display, no second touch panel: the menus on the larger part */
+	if (ui_layout_focus()) return cfg->swap ? 1 : 0;
 #ifdef __ANDROID__
 	if (lastTouchScreen >= 0 && lastTouchScreen < nScreens) return lastTouchScreen;
 #endif
