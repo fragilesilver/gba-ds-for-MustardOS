@@ -644,6 +644,29 @@ into `dev` once it's in good shape, so that `dev` stays releasable.
   the volume keys are raw buttons 16/15 and set GBA DS's own volume
   (GBADS_VOLUME file, GBADS_VOLUME_BUTTONS); the menu's volume can't be read.
   No EmulationStation (Settings hides that row when no es_systems.cfg exists).
+- **muOS** (MustardOS 2606 Andromeda, 2612 Supernova; single-screen H700 / RK3326
+  handhelds, Cortex-A53, glibc 2.38; no device to test on yet): GBA DS External
+  Core, `scripts/build-muos.sh` (`AARCH64_CPU=cortex-a53`, `NO_UPDATES=1`) ->
+  a `.muxapp` (a zip muOS's Archive Manager unpacks into `MUOS/application`).
+  `dist/muos/`: `mux_launch.sh` (the app; runs `core.sh install` each time),
+  `core.sh` (adds `"gba ds - external core": {core ext-gbads, launcher
+  gbads.sh}` to the system's `external` group: Andromeda's one `core.json`,
+  the user's copy in `/run/muos/storage/info/manifest/` winning over
+  `/opt/muos/share/info/manifest/`; Supernova's `core/<Namespace>/<System>.json`,
+  user > coresync > bundled, per system; a user file it wrote is remade from
+  muOS's each time, one the user made keeps their changes), `ext-gbads.sh`
+  (copied to `/opt/muos/script/launch/`, where muOS's `script/mux/launch.sh`
+  resolves `ext-` + launcher; called as NAME CORE ROM) and `muos-play.sh`
+  (POSIX sh: muOS may have no bash; ROM folders, saves shared with
+  RetroArch's mGBA folder, the controller line from muOS's `retro.txt` with
+  a/b swapped so the face buttons are by position, `layout = focus` on the
+  first run, `foreground_process` so muOS's quit TERMs it). The UI side is
+  `layout = focus` (ui.c `layout_screens`: one display split 2/3 : 1/3 along
+  the axis with the larger integer game scale; the big part follows `swap`;
+  menus on it, `ui_touch_screen`; `ui_focus_alone` gives unsupported games
+  the whole display) and the Layout row (`ui_one_display`). muOS sources are
+  github.com/MustardOS/internal and frontend (tag 2606.0_Andromeda; main is
+  Supernova).
 - EmulationStation: `/usr/bin/runemu.sh` launches games; the GBA command is
   `/usr/bin/runemu.sh %ROM% -P%SYSTEM% --core=%CORE% --emulator=%EMULATOR%
   --controllers="%CONTROLLERSCONFIG%"`.

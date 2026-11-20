@@ -4,6 +4,7 @@
 - [[Install on ROCKNIX]]
 - [[Install on BananaOS]]
 - [[Install on Stock Linux OS]]
+- [[Install on muOS]]
 - [[Install on Android]]
 - [[Launching from Android frontends]]
 - [Play in your browser](https://kyannon.github.io/gba-ds/)

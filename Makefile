@@ -31,6 +31,11 @@ ifneq ($(SIDE_CODES),)
 SIDE_DEF   += -DGBADS_SIDE_CODES='"$(SIDE_CODES)"'
 endif
 endif
+# NO_UPDATES=1: no update checks or installs (a package the GitHub release
+# isn't, such as the muOS one: scripts/build-muos.sh)
+ifneq ($(NO_UPDATES),)
+SIDE_DEF   += -DGBADS_NO_UPDATES
+endif
 OPTFLAGS   ?= -O2 -g
 
 override CFLAGS := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers \

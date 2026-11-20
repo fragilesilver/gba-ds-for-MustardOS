@@ -3,6 +3,7 @@ work/
 deps/
 build/
 dist/*.zip
+dist/*.muxapp
 *.sav
 *.ss
 tools/harness

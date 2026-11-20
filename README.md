@@ -44,6 +44,7 @@ Download the latest release from the [Releases page](https://github.com/kyannon/
 - **[ROCKNIX](https://github.com/kyannon/gba-ds/wiki/Install-on-ROCKNIX)** (stock ROCKNIX or ROCKNIXDS): unzip `gba-ds-v…-linux-aarch64.zip` into `/storage/roms/ports/` and start **GBA DS** from Ports. The guide also covers the Ports icon, starting games from EmulationStation's Game Boy Advance list, and upgrading.
 - **[BananaOS](https://github.com/kyannon/gba-ds/wiki/Install-on-BananaOS)**: the same zip, unzipped into the card's `roms/ports`; games in `roms/gba`.
 - **[Stock Linux OS](https://github.com/kyannon/gba-ds/wiki/Install-on-Stock-Linux-OS)** (the RG DS Plus's own system, experimental): the same zip, unzipped into the card's `Ports` folder; games in `Roms/GBA`.
+- **[muOS](wiki/Install-on-muOS.md)** (MustardOS 2606 Andromeda and 2612 Supernova, single-screen handhelds, experimental): **GBA DS External Core**. Copy `gba-ds-external-core-v…-muos.muxapp` to `MUOS/ARCHIVE`, install it with the Archive Manager, open Applications → GBA DS once, then assign **GBA DS - External Core** to your GBA folder in Core Assignment. The one screen is split: the game at pixel-perfect 2x (on 640x480) with the second screen under it.
 - **[Android](https://github.com/kyannon/gba-ds/wiki/Install-on-Android)** (GammaOS): install `gba-ds-v…-android.apk`, allow All files access, and put your ROMs in `ROMs/gba`. To start games from GammaOS, Daijisho, ES-DE or another frontend, see [Launching from Android frontends](https://github.com/kyannon/gba-ds/wiki/Launching-from-Android-frontends).
 - **[In your web browser](https://kyannon.github.io/gba-ds/)** (beta): choose a GBA game and play it with its second screen on a computer, a tablet or a phone, with nothing to install. Your games and saves stay on your device.
 
@@ -56,6 +57,14 @@ scripts/build-rocknix.sh            # -> dist/gba-ds-v<VERSION>-linux-aarch64.zi
 ```
 
 The script fetches a GCC aarch64 toolchain, mGBA (pinned commit), and SDL2 into `deps/`.
+
+For muOS (GBA DS External Core, built for Cortex-A53 with no update checks):
+
+```sh
+scripts/build-muos.sh               # -> dist/gba-ds-external-core-v<VERSION>-muos.muxapp
+```
+
+Its scripts are in `dist/muos/`: `mux_launch.sh` (the app), `core.sh` (adds the core to muOS's Andromeda `core.json` or Supernova per-system definitions), `ext-gbads.sh` (muOS's launcher for the core) and `muos-play.sh` (muOS's folders and controls).
 
 Dev builds (a `-dev` VERSION) also carry `gba-ds/web/gba-ds.wasm`, GBA DS compiled to WebAssembly by `scripts/build-web.sh` (needs clang, wasm-ld, llvm-ar, cmake and git, and the mGBA and SDL2 sources in `deps/` from `scripts/setup-host.sh` or `scripts/build-rocknix.sh`; it builds binaryen's `wasm-opt` the first time). Dropping such a zip on the GBA DS tab of the State Saver tool (`tools/statesaver/`) runs that build in a browser, both screens at default settings, for testing before it goes on a device.
 
