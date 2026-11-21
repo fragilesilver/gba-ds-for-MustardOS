@@ -10,7 +10,7 @@
 - On a narrow second screen (taller than wide), the game list's preview puts the game's logo and notes under GBA DS's logo instead of beside it.
 - "Swipe up for quick menu" isn't shown on a device without a touchscreen.
 - **Peek at the second screen** (Settings > Screens, one screen only; off at first): pick X, Y or L3, and while it's held the map fills the screen, at twice the size on a 640x480 screen; let go and the game is back. The game doesn't get that button.
-- **Fast forward button** (Settings > Speed and sound, and the pause menu): *Hold R2* as before, or *Press R2 to switch*, where one press starts fast-forward and the next stops it ("Fast forward on / off" says which).
+- **Fast forward button** (Settings > Speed and sound, and the pause menu): *Hold R2* as before, or *Press R2 to switch*, where one press starts fast-forward and the next stops it ("Fast forward on / off" says which). While it's switched on, a small "FF" sign sits in the game screen's top right corner instead of the "Fast forwarding..." box over the second screen.
 - The muOS build reports its version as 1.5.6+muos, and its file is `gba-ds-external-core-v1.5.6+muos.muxapp`.
 
 ## v1.5.6 (2026-11-19)

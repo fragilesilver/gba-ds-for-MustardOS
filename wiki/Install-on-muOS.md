@@ -29,7 +29,7 @@ Opening the app again puts the core back if a muOS update took it away. On Andro
 
 ## How it fits in
 
-- **Fast forward:** hold R2, or set Settings → Speed and sound → Fast forward button to *Press R2 to switch* to switch it on with one press and off with the next.
+- **Fast forward:** hold R2, or set Settings → Speed and sound → Fast forward button to *Press R2 to switch* to switch it on with one press and off with the next (a small "FF" in the corner shows it's on).
 - **Buttons:** GBA A is the right face button and B the bottom one, whichever controller layout muOS is set to (Retro or Modern); MENU is HOME. If a button is wrong on your device, Settings → Controls → Map Buttons maps them.
 - **Quit and sleep:** muOS's own quit closes GBA DS as it does any core, and GBA DS saves where you are on the way out (Save on quit).
 - **Where things go:** these replace ROCKNIX's paths unless you've changed them in `gba-ds.cfg`:

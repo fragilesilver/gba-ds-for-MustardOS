@@ -2800,6 +2800,29 @@ static void draw_rewind(void) {
 		rewindShown = 1;
 		rewindRight = false;
 		rewindText = rewindBox == 2 ? N_("Can't rewind further"): N_("Rewinding...");
+	} else if (ffBox && cfg->ffToggle) {
+		/* switched on (fast_forward_toggle), it can stay on for long: no box
+		 * over the second screen, a small "FF" sign in the game screen's
+		 * top right corner instead (beside the picture when there's room) */
+		rewindShown = 0;
+		int s = game_screen();
+		float px = ui_px(s);
+		int cap = px * 5, tw = ui_font_width(TF_BOLD, cap, "FF");
+		int pad = px * 3, ih = cap, tri = ih / 2, gap = px * 2, m = px * 3;
+		int w = pad + tri * 2 + gap + tw + pad, h = ih + pad * 2;
+		SDL_Rect r = screens[s].rect;
+		SDL_Rect b = { r.w - m - w, m, w, h };
+		SDL_Color fg = ui_key_ink();
+		ui_key(s, b, px * 2, KEY_PLAIN);
+		int ix = b.x + pad, cy = b.y + b.h / 2, half = ih / 2;
+		for (int t = 0; t < 2; ++t) {
+			for (int i = 0; i < tri; ++i) {
+				int hh = half * (i + 1) / tri;
+				ui_fill(s, (SDL_Rect) { ix + t * tri + tri - 1 - i, cy - hh, 1, hh * 2 }, fg);
+			}
+		}
+		ui_font_text(s, TF_BOLD, ix + tri * 2 + gap + tw / 2, cy, cap, "FF", fg, 0);
+		return;
 	} else if (ffBox) {
 		rewindShown = 1;
 		rewindRight = true;
