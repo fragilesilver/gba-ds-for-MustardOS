@@ -93,6 +93,9 @@ bool ui_layout_focus(void);
  * second-screen support, or Second screen off): the game on the whole
  * display (true), or the two parts again (false: the game list) */
 void ui_focus_alone(bool alone);
+/* The peek button held (layout = focus): the game's part becomes the whole
+ * display, for game.c to draw the second screen there; false: back. */
+void ui_peek(bool on);
 /* A touchscreen to swipe on (or a desktop window's mouse): the quick bar's hint. */
 bool ui_touch_available(void);
 int ui_other_screen(void); /* the non-touch screen, or the touch screen if there's only one */

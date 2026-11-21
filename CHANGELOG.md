@@ -1,6 +1,6 @@
 # Changelog
 
-## GBA DS External Core for muOS (not yet released)
+## v1.5.6+muos: GBA DS External Core for muOS (not yet released)
 
 ### New
 - **muOS (MustardOS 2606 Andromeda and 2612 Supernova):** GBA DS External Core, a `.muxapp` for muOS's Archive Manager. It installs the app GBA DS (Applications), which opens the game list and adds **GBA DS - External Core** to muOS's Game Boy Advance cores, so games start from muOS's own lists once it's chosen in Core Assignment (and close back to muOS). Battery saves are shared with RetroArch's mGBA core, screenshots go to muOS's folder, RetroArch's cheats and RetroAchievements account are used, and the buttons work by position whichever controller layout muOS is set to. Experimental: not tried on a device yet. See the [Install on muOS](wiki/Install-on-muOS.md) page.
@@ -9,6 +9,9 @@
 - **Layout for one screen** (Settings > Screens, and the pause menu's Screens page; only on a device with one screen): *Game and second screen* splits the screen, the game in two thirds of it, pixel perfect, and the second screen in the rest (on 640x480: the game at 2x on top, the map at 1x below), across whichever side gives the game the bigger picture. Swap Screens moves the game and keeps the larger part its own; the game list and the pause menu open on the larger part. Games without second-screen support get the whole screen. *Game only* is the single screen as before (HOME + Y shows the map). It can also be set for one game. muOS starts with *Game and second screen*.
 - On a narrow second screen (taller than wide), the game list's preview puts the game's logo and notes under GBA DS's logo instead of beside it.
 - "Swipe up for quick menu" isn't shown on a device without a touchscreen.
+- **Peek at the second screen** (Settings > Screens, one screen only; off at first): pick X, Y or L3, and while it's held the map fills the screen, at twice the size on a 640x480 screen; let go and the game is back. The game doesn't get that button.
+- **Fast forward button** (Settings > Speed and sound, and the pause menu): *Hold R2* as before, or *Press R2 to switch*, where one press starts fast-forward and the next stops it ("Fast forward on / off" says which).
+- The muOS build reports its version as 1.5.6+muos, and its file is `gba-ds-external-core-v1.5.6+muos.muxapp`.
 
 ## v1.5.6 (2026-11-19)
 

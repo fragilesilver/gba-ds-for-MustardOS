@@ -1345,9 +1345,9 @@ typedef struct {
 static const SetPage setPages[SP_SYSTEM] = {
 	{ N_("Games"), N_("Which games, names, saving"), { "show_all", "name_tags", "save_on_quit", "auto_load", "custom_logos", "quick_bar_hint" } },
 	{ N_("Display"), N_("Scale, shader, theme, color"), { "scale", "map_scale", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "smooth", "theme", "accent" } },
-	{ "Screens", N_("Placement, overlays"), { "layout", "swap", "screen_match", "screen_placement", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
+	{ "Screens", N_("Placement, overlays"), { "layout", "peek_button", "swap", "screen_match", "screen_placement", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
 	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "@map", "@hotkeys" } },
-	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "match_display", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "audio_latency", "performance" } },
+	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "match_display", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "fast_forward_toggle", "audio_latency", "performance" } },
 	{ "Second screen", N_("The map and the logo"), { "map", "map_interval", "pinball_live" } },
 };
 static int setPage = SP_HOME; /* SP_HOME, a category, or SP_SYSTEM (the older panel) */
@@ -1372,7 +1372,7 @@ static int page_settings(int page, const Setting** out, const char** ids) {
 		const char* k = setPages[page].keys[i];
 		const Setting* st = k[0] == '@' ? NULL : config_setting(k);
 		if (k[0] != '@' && (!st || (!strcmp(st->key, "performance") && !clocks_available()))) continue;
-		if (st && !strcmp(st->key, "layout") && !ui_one_display()) continue; /* (two panels: nothing to choose) */
+		if (st && (!strcmp(st->key, "layout") || !strcmp(st->key, "peek_button")) && !ui_one_display()) continue; /* (two panels: nothing to choose) */
 		ids[n] = k;
 		out[n++] = st;
 	}

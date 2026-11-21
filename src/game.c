@@ -7019,6 +7019,29 @@ static void relayout(void) {
 	}
 }
 
+/* Peek (peek_button, one display): while the button is held the second
+ * screen fills the display (layout = focus: the game's part made the whole
+ * display, the map drawn there; layout = single: the other picture), and
+ * the game doesn't get the button. Nothing to peek at without a map. */
+static bool peeking;
+static int peek_btn(void) {
+	if (!strcmp(cfg->peekButton, "x")) return B_X;
+	if (!strcmp(cfg->peekButton, "y")) return B_Y;
+	if (!strcmp(cfg->peekButton, "l3")) return B_L3;
+	return -1;
+}
+static void peek_set(bool on) {
+	if (on == peeking) return;
+	peeking = on;
+	if (!strcmp(cfg->layout, "focus") && nViews == 1) {
+		ui_peek(on);
+		relayout();
+	}
+}
+
+/* fast_forward_toggle: R2 switches fast-forward on and off (else it's held) */
+static bool ffLatched;
+
 static void swap_screens(void) {
 	/* the game moves to the other view, whose copy of the frame may be old
 	 * (frames go only where the game is shown; the menu uploads none) */
@@ -7317,8 +7340,10 @@ static void make_combat_canvas(void) {
 
 static void draw_game(void) {
 	bool mapOn = (mc || logoOnly) && cfg->map; /* logo-only games: the logo stands in for the map */
+	bool peekMap = peeking && mapOn; /* (peek: the second screen in the game's place, the other part not drawn) */
 	for (int s = 0; s < nScreens; ++s) {
-		bool showGame = nScreens == 1 ? !(singleShowsMap && mapOn) : (s == game_screen() || !mapOn);
+		if (peekMap && nScreens == 2 && s != game_screen()) continue;
+		bool showGame = nScreens == 1 ? !((singleShowsMap != peekMap) && mapOn) : !peekMap && (s == game_screen() || !mapOn);
 		SDL_Rect r = screens[s].rect;
 		if (showGame) {
 			if (nScreens == 2 && !mapOn && s != game_screen()) {
@@ -7404,6 +7429,7 @@ static SDL_Rect ach_area(int scr) {
 }
 
 static void open_menu(void) {
+	peek_set(false);
 	bar_close();
 	barShown = 0;
 	cheatsOpen = false;
@@ -8028,6 +8054,9 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	frameCount = 0;
 	mapAnimStart = 0; /* (the last game's count was further on) */
 	menuOpen = false;
+	peeking = false;
+	ui_peek(false);
+	ffLatched = false;
 	{
 		/* a compilation: the profile of the game running in it (none yet) */
 		const MapProfile* gp = profile_find(emu.gameCode);
@@ -8076,6 +8105,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ROW(PG_DISPLAY, "lcd_ghosting");
 	if (ui_logo_custom(cfg, romPath, emu.gameCode)) ROW(PG_DISPLAY, "custom_logos"); /* the game has the player's own or a scraped logo (GEN-11) */
 	if (ui_one_display()) ROW(PG_SCREENS, "layout");
+	if (ui_one_display()) ROW(PG_SCREENS, "peek_button");
 	if (nScreens >= 2) ROW(PG_SCREENS, "swap");
 	ROW(PG_SCREENS, "screen_match");
 	ROW(PG_SCREENS, "screen_placement");
@@ -8103,6 +8133,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ROW(PG_SPEED, "rewind");
 	ROW(PG_SPEED, "rewind_seconds");
 	ROW(PG_SPEED, "fast_forward");
+	ROW(PG_SPEED, "fast_forward_toggle");
 	ROW(PG_SPEED, "save_on_quit");
 	ROW(PG_SPEED, "auto_load");
 	ROW(PG_MAP, "map");
@@ -8853,12 +8884,23 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			continue;
 		}
 
-		if (btn_pressed(B_L3) && modBtn != B_L3) bar_toggle(); /* (L3: the quick menu, as a swipe up) */
+		if (btn_pressed(B_L3) && modBtn != B_L3 && peek_btn() != B_L3) bar_toggle(); /* (L3: the quick menu, as a swipe up) */
 
 		/* ---- emulate */
 		uint32_t keys = 0;
 		for (int b = 0; b < B_COUNT; ++b) {
 			if (!btnNow[b]) suppress[b] = false; /* released: counts again */
+		}
+		{
+			int pb = peek_btn();
+			bool held = pb >= 0 && ui_one_display() && btnNow[pb] && !btnNow[modBtn];
+			if (held) suppress[pb] = true; /* (the peek button isn't the game's) */
+			peek_set(held && (mc || logoOnly) && cfg->map);
+		}
+		/* fast_forward_toggle: a press of R2 switches it */
+		if (cfg->ffToggle && cfg->fastForward && btn_pressed(B_R2) && !(cfg->rewind && btnNow[B_L2])) {
+			ffLatched = !ffLatched;
+			ui_osd("%s", ffLatched ? tr("Fast forward on") : tr("Fast forward off"));
 		}
 		if (modIsGame && btnNow[modBtn]) {
 			/* the hotkey (SELECT or START) held: the actions' buttons are
@@ -8924,7 +8966,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 
 		bool rewinding = cfg->rewind && btnNow[B_L2];
-		bool ff = cfg->fastForward && btnNow[B_R2] && !rewinding;
+		bool ff = cfg->fastForward && (cfg->ffToggle ? ffLatched : btnNow[B_R2]) && !rewinding;
 		ffBox = ff;
 		/* Max (ff_speed 0): as many frames as fit in about 70% of a display
 		 * frame (the rest for drawing it), up to FF_MAX_RUNS; the sound

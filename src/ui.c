@@ -68,6 +68,7 @@ static bool debug;
 static bool oneDisplay;
 static bool fullscreenWin; /* the window is the whole display (a device, not a desktop window) */
 static bool focusAlone;    /* layout = focus, for a game with nothing for a second screen: the whole display */
+static bool peekOn;        /* layout = focus, the peek button held: the game's part is the whole display (game.c draws the map there) */
 #ifdef __ANDROID__
 static int lastTouchScreen = -1; /* the screen touches came from (Android: either display may have the panel) */
 #endif
@@ -762,6 +763,7 @@ static void layout_screens(void) {
 			screens[big] = (Screen) { 0, { 0, big ? h - hBig : 0, w, hBig } };
 			screens[1 - big] = (Screen) { 0, { 0, big ? 0 : hBig, w, h - hBig } };
 		}
+		if (peekOn) screens[big].rect = (SDL_Rect) { 0, 0, w, h };
 		static char loggedF[64];
 		char lineF[64];
 		snprintf(lineF, sizeof(lineF), "%dx%d focus %s, game %dx%d", w, h, side ? "side by side" : "stacked",
@@ -814,6 +816,12 @@ bool ui_one_display(void) {
 void ui_focus_alone(bool alone) {
 	if (alone == focusAlone) return;
 	focusAlone = alone;
+	if (cfg && !strcmp(cfg->layout, "focus") && nViews == 1) ui_layout();
+}
+
+void ui_peek(bool on) {
+	if (on == peekOn) return;
+	peekOn = on;
 	if (cfg && !strcmp(cfg->layout, "focus") && nViews == 1) ui_layout();
 }
 

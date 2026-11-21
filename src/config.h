@@ -54,6 +54,8 @@ typedef struct Config {
 	bool rewind;       /* keep a rewind buffer (hold L2 to rewind) */
 	int rewindSeconds; /* how far back */
 	bool fastForward;  /* hold R2 to fast-forward */
+	bool ffToggle;     /* fast_forward_toggle: R2 switches fast-forward on and off instead of being held */
+	char peekButton[8]; /* peek_button: held, the second screen fills the one display (none | x | y | l3) */
 	bool matchDisplay; /* run at the display's refresh rate (if close to the GBA's) instead of 59.73 Hz */
 	int mapInterval;   /* frames between periodic map refreshes */
 	int solarLevel;    /* the sunlight a sun sensor (Boktai) reads, 0-10 */

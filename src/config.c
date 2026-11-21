@@ -16,6 +16,7 @@ static const char* const hotkeyDefaults[HK_COUNT] = { "start", "r", "l", "x", "y
 void config_defaults(Config* c) {
 	memset(c, 0, sizeof(*c));
 	strcpy(c->layout, "auto");
+	strcpy(c->peekButton, "none");
 	strcpy(c->saveExt, "sav");
 	strcpy(c->stateFolder, "gbads");
 	strcpy(c->scale, "integer");
@@ -190,6 +191,8 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	INT("audio_latency", audioLatency)
 	INT("ff_speed", ffSpeed)
 	BOOL("fast_forward", fastForward)
+	BOOL("fast_forward_toggle", ffToggle)
+	STR("peek_button", peekButton)
 	STR("save_dir", saveDir)
 	STR("save_ext", saveExt)
 	STR("save_from", saveFrom)
@@ -278,7 +281,7 @@ static const char* const perGameKeys[] = {
 	"layout", "swap", "scale", "map_scale", "smooth", "border_color", "overlays", "overlay_screens", "bezel_logo", "bezel_inner",
 	"bezel_outer", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "frame_buffer", "match_display", "map",
 	"map_interval", "custom_logos", "pinball_live", "rewind", "rewind_seconds",
-	"fast_forward", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_match", "screen_placement",
+	"fast_forward", "fast_forward_toggle", "peek_button", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_match", "screen_placement",
 	"save_on_quit", "auto_load", "left_stick_dpad", "turbo_rate", "brightness_top", "brightness_bottom", "button_right", "button_bottom", "button_top", "button_left",
 	"button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right",
 };
@@ -444,6 +447,8 @@ static const SettingChoice chShader[] = {
 	{ "subpixels-light", "Subpixels (Light)", SH_SUB_LIGHT }, { "subpixels", "Subpixels", SH_SUB }, { "subpixels-strong", "Subpixels (Strong)", SH_SUB_STRONG },
 };
 static const SettingChoice chLayout[] = { { "auto", "Automatic", 0 }, { "single", "Game only", 0 }, { "focus", "Game and second screen", 0 } };
+static const SettingChoice chPeek[] = { { "none", "Off", 0 }, { "x", "Hold X (top)", 0 }, { "y", "Hold Y (left)", 0 }, { "l3", "Hold L3 (stick press)", 0 } };
+static const SettingChoice chFFMode[] = { { "0", "Hold R2", 0 }, { "1", "Press R2 to switch", 1 } };
 static const SettingChoice chSwap[] = { { "0", "Game on top", 0 }, { "1", "Game below", 1 } };
 static const SettingChoice chMatch[] = { { "keep", "Keep device shapes", 0 }, { "aspect", "Match aspect ratios", 0 }, { "size", "Match sizes and shapes", 0 } };
 static const SettingChoice chPlace[] = { { "center", "Centered", 0 }, { "no_gap", "Closest to gap", 0 } };
@@ -482,6 +487,7 @@ static const Setting settingsTable[] = {
 	{ "smooth", "Smooth scaling", SF_BOOL, OFFB(smooth), ARR(chOnOff), 0, 0, 0, NULL, "Blurry instead of sharp: usually leave off." },
 
 	{ "layout", "Layout", SF_STR, OFFB(layout), ARR(chLayout), 0, 0, 0, NULL, "One screen: the game alone (HOME + Y shows the map instead), or the game with the second screen beside it." },
+	{ "peek_button", "Peek at the second screen", SF_STR, OFFB(peekButton), ARR(chPeek), 0, 0, 0, NULL, "One screen: while the button is held, the map fills the screen. The game doesn't get that button." },
 	{ "swap", "Screens", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
 	{ "screen_match", "Screen shapes", SF_STR, OFFB(screenMatch), ARR(chMatch), 0, 0, 0, NULL, "Only when your two screens differ in shape. Experimental." },
 	{ "screen_placement", "Screen placement", SF_STR, OFFB(screenPlace), ARR(chPlace), 0, 0, 0, NULL, "Pictures in the middle of their screens, or close together." },
@@ -513,6 +519,7 @@ static const Setting settingsTable[] = {
 	{ "rewind", "Rewind", SF_BOOL, OFFB(rewind), ARR(chOnOff), 0, 0, 0, NULL, "Hold L2 to go back in time." },
 	{ "rewind_seconds", "Rewind length", SF_INT, OFFB(rewindSeconds), ARR(chRewind), 0, 0, 0, N_(" s"), "How far back it goes." },
 	{ "fast_forward", "Fast forward", SF_FF, OFFB(fastForward), ARR(chFF), 0, 0, 0, NULL, "Hold R2 to play faster." },
+	{ "fast_forward_toggle", "Fast forward button", SF_BOOL, OFFB(ffToggle), ARR(chFFMode), 0, 0, 0, NULL, "Hold R2 while you want it, or press R2 once to switch it on and again to switch it off." },
 	{ "audio_latency", "Sound delay", SF_INT, OFFB(audioLatency), ARR(chLatency), 0, 0, 0, N_(" ms"), "Raise it if the sound crackles." },
 	{ "performance", "Performance", SF_BOOL, OFFB(perfMax), ARR(chPerf), 0, 0, 0, NULL, "Max: full speed, a warmer device and a shorter battery." },
 

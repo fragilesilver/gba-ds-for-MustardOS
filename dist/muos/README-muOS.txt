@@ -9,7 +9,7 @@ at 1x below it).
 
 Install
 -------
-1. Copy gba-ds-external-core-v...-muos.muxapp to the card's MUOS/ARCHIVE folder.
+1. Copy gba-ds-external-core-v...+muos.muxapp to the card's MUOS/ARCHIVE folder.
 2. On the device, open muOS's Archive Manager, choose the archive and
    install it. It goes into MUOS/application/GBA DS.
 3. Open Applications > GBA DS once. This adds "GBA DS - External Core" to
@@ -32,6 +32,10 @@ Your games
 Controls
 --------
 - MENU: GBA DS's menu (save and load states, settings, close the game).
+- R2: fast forward (hold, or press to switch it on and off: Settings >
+  Speed and sound > Fast forward button).
+- Peek: Settings > Screens > Peek at the second screen picks X, Y or L3;
+  hold it and the map fills the screen, let go and the game is back.
 - MENU + Y: swap the game and the second screen. More hotkeys in
   Settings > Controls > Hotkeys.
 - GBA A is the right face button and B the bottom one, whichever controller

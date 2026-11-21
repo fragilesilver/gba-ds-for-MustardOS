@@ -1,7 +1,7 @@
 #!/bin/bash
 # Cross-build of GBA DS External Core for muOS (MustardOS 2606 Andromeda and
 # 2612 Supernova; aarch64) on an x86_64 Linux host.
-# Produces dist/gba-ds-external-core-v<VERSION>-muos.muxapp: a muOS application
+# Produces dist/gba-ds-external-core-v<VERSION>+muos.muxapp: a muOS application
 # archive (a zip that muOS's Archive Manager unpacks into MUOS/application),
 # holding the app "GBA DS" (Applications), which on opening adds
 # "GBA DS - External Core" to muOS's Game Boy Advance cores (dist/muos/core.sh).
@@ -25,7 +25,7 @@ AARCH64_CPU=cortex-a53
 # --- gba-ds ---------------------------------------------------------------
 OUT=build/aarch64-muos
 make CROSS="$CROSS" MGBA_SRC="$DEPS/mgba" MGBA_BUILD="$MGBA_BUILD_DIR" \
-	SDL_PREFIX="$DEPS/sdl-aarch64" OUT="$OUT" OPTFLAGS="-O2 -mcpu=$AARCH64_CPU" NO_UPDATES=1
+	SDL_PREFIX="$DEPS/sdl-aarch64" OUT="$OUT" OPTFLAGS="-O2 -mcpu=$AARCH64_CPU" NO_UPDATES=1 VERSION_SUFFIX=+muos
 
 # glibc: muOS 2606 has 2.38 (its own programs ask for up to GLIBC_2.38)
 NEED=$("${CROSS}objdump" -T "$OUT/gba-ds" | grep -o 'GLIBC_[0-9.]*' | sort -uV | tail -n 1)
@@ -36,9 +36,9 @@ if [ "$(printf '%s\nGLIBC_2.38\n' "$NEED" | sort -V | tail -n 1)" != GLIBC_2.38 
 fi
 
 # --- package ---------------------------------------------------------------
-VERSION=$(cat VERSION)
+VERSION=$(cat VERSION)+muos
 APP="GBA DS"                       # MUOS/application/GBA DS
-ARCHIVE="gba-ds-external-core-v$VERSION-muos.muxapp"
+ARCHIVE="gba-ds-external-core-v$VERSION.muxapp"
 PKG="$ROOT/build/pkg-muos/$APP"
 rm -rf "$ROOT/build/pkg-muos"
 mkdir -p "$PKG"
@@ -64,6 +64,6 @@ cp third_party/libwebp/PATENTS "$PKG/licenses/libwebp-PATENTS.txt"
 printf "GBA DS %s is free software under the GNU General Public License, version 3 only (GBA-DS-LICENSE.txt).\nIt statically links libmgba (c) Jeffrey Pfau, MPL-2.0.\nmGBA source: https://github.com/mgba-emu/mgba (commit %s)\nIts text is set in Jost (c) The Jost Project Authors, SIL Open Font License 1.1 (Jost-OFL.txt).\nRetroAchievements support: rcheevos (c) RetroAchievements, MIT (rcheevos-LICENSE.txt), %s.\nWebP images: libwebp (c) Google Inc., BSD 3-clause (libwebp-COPYING.txt, libwebp-PATENTS.txt), v1.6.0.\nGBA DS source: https://github.com/kyannon/gba-ds (the muOS external core: https://github.com/fragilesilver/gba-ds)\n" "$VERSION" "$MGBA_COMMIT" "$(tail -1 third_party/rcheevos/VERSION)" > "$PKG/licenses/README.txt"
 chmod +x "$PKG"/*.sh "$PKG/gba-ds"
 mkdir -p dist
-rm -f "$ROOT"/dist/gba-ds-external-core-v*-muos.muxapp
+rm -f "$ROOT"/dist/gba-ds-external-core-v*.muxapp
 (cd "$ROOT/build/pkg-muos" && zip -qr "$ROOT/dist/$ARCHIVE" "$APP")
 echo "built dist/$ARCHIVE"

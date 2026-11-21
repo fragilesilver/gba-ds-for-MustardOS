@@ -15,11 +15,12 @@ These handhelds have one screen, so GBA DS splits it (Settings → Screens → *
 - **Swap Screens** (HOME + Y, or the pause menu) puts the game in the smaller part's place and keeps the larger part the game's.
 - The game list and the pause menu open on the larger part; the game's logo and resume picture go in the smaller one.
 - Games without second-screen support, or with Second screen off, get the whole screen.
+- **Peek at the second screen** (Settings → Screens; off at first): choose X, Y or L3, and while you hold it the map fills the screen at twice the size; let go and the game is back. The game doesn't get that button.
 - **Layout: Game only** gives every game the whole screen, as GBA DS does on any single screen: HOME + Y then shows the map in the game's place. Layout can be set for one game too (the pause menu's Screens page, This game).
 
 ## Install
 
-1. Download `gba-ds-external-core-v…-muos.muxapp` and copy it to the card's `MUOS/ARCHIVE` folder.
+1. Download `gba-ds-external-core-v…+muos.muxapp` and copy it to the card's `MUOS/ARCHIVE` folder.
 2. On the device, open muOS's **Archive Manager** and install it. It goes into `MUOS/application/GBA DS`.
 3. Open **Applications → GBA DS** once. This adds **GBA DS - External Core** to muOS's Game Boy Advance cores, and the game list opens: you can play from here.
 4. To start games from muOS's own lists: highlight your GBA folder (or a single game), open **Core Assignment**, and choose **GBA DS - External Core** for the folder or that game. Closing a game (the pause menu's Close GBA DS, or muOS's quit) goes back to muOS.
@@ -28,6 +29,7 @@ Opening the app again puts the core back if a muOS update took it away. On Andro
 
 ## How it fits in
 
+- **Fast forward:** hold R2, or set Settings → Speed and sound → Fast forward button to *Press R2 to switch* to switch it on with one press and off with the next.
 - **Buttons:** GBA A is the right face button and B the bottom one, whichever controller layout muOS is set to (Retro or Modern); MENU is HOME. If a button is wrong on your device, Settings → Controls → Map Buttons maps them.
 - **Quit and sleep:** muOS's own quit closes GBA DS as it does any core, and GBA DS saves where you are on the way out (Save on quit).
 - **Where things go:** these replace ROCKNIX's paths unless you've changed them in `gba-ds.cfg`:

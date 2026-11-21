@@ -36,6 +36,8 @@ endif
 ifneq ($(NO_UPDATES),)
 SIDE_DEF   += -DGBADS_NO_UPDATES
 endif
+# VERSION_SUFFIX: added to the version a build reports (the muOS one: +muos)
+VERSION    := $(VERSION)$(VERSION_SUFFIX)
 OPTFLAGS   ?= -O2 -g
 
 override CFLAGS := $(OPTFLAGS) -std=gnu11 -Wall -Wextra -Wno-unused-parameter -Wno-missing-field-initializers \
