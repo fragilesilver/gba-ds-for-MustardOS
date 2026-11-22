@@ -12,11 +12,11 @@ These handhelds have one screen, so GBA DS splits it (Settings → Screens → *
 | 1024x768 (TrimUI Brick) | 1024x512 on top: 3x | 1024x256 below: 1x, 1.6x at Full Width |
 | 1920x1080 (HDMI, large screens) | 1280x1080 on the left: 5x | 640x1080 on the right |
 
-- **Swap Screens** (HOME + Y, or the pause menu) puts the game in the smaller part's place and keeps the larger part the game's.
+- **Swap Screens** (HOME + D-pad up, or the pause menu) puts the game in the smaller part's place and keeps the larger part the game's.
 - The game list and the pause menu open on the larger part; the game's logo and resume picture go in the smaller one.
 - Games without second-screen support, or with Second screen off, get the whole screen.
 - **Peek at the second screen** (Settings → Screens; off at first): choose X, Y or L3, and while you hold it the map fills the screen at twice the size; let go and the game is back. The game doesn't get that button.
-- **Layout: Game only** gives every game the whole screen, as GBA DS does on any single screen: HOME + Y then shows the map in the game's place. Layout can be set for one game too (the pause menu's Screens page, This game).
+- **Layout: Game only** gives every game the whole screen, as GBA DS does on any single screen: HOME + D-pad up then shows the map in the game's place. Layout can be set for one game too (the pause menu's Screens page, This game).
 
 ## Install
 

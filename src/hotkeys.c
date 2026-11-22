@@ -18,7 +18,7 @@ const char* const hotkeyBtnNames[B_COUNT] = { "a", "b", "x", "y", "start", "sele
 #endif
 static const char* const btnTitles[B_COUNT] = { "A", "B", "X", "Y", "Start", "Select", HOME_TITLE, "L1", "R1", "L2", "R2", "L3",
 	                                            N_("Up"), N_("Down"), N_("Left"), N_("Right")};
-static const char* const actionTitles[HK_COUNT] = { "Quit", N_("Quick save state"), N_("Quick load state"), N_("Open quick menu"), N_("Swap screens"),
+static const char* const actionTitles[HK_COUNT] = { N_("Close emulator"), N_("Close game"), N_("Quick save state"), N_("Quick load state"), N_("Open quick menu"), N_("Swap screens"),
                                                     N_("Toggle selected shader"), N_("Previous save slot"), N_("Next save slot")};
 
 const char* hotkey_btn_title(int b) {
@@ -88,12 +88,12 @@ static SDL_Rect row_rect(int scr, int row) {
 	int m = px * 10, w = r.w - m * 2;
 	if (row >= R_RESET) {
 		int bw = (w - px * 8) / 2;
-		return (SDL_Rect) { m + (row == R_DONE ? bw + px * 8 : 0), (int) (px * 164), bw, (int) (px * 16) };
+		return (SDL_Rect) { m + (row == R_DONE ? bw + px * 8 : 0), (int) (px * 160), bw, (int) (px * 16) };
 	}
-	/* (as many rows as fit between the heading and the footnote: 16 apart for
-	 * up to 7, closer for more) */
-	int step = SDL_min(16, (150 - 34) / (1 + HK_COUNT));
-	return (SDL_Rect) { m, (int) (px * (34 + row * step)), w, (int) (px * (step - 3)) };
+	/* (as many rows as fit between the heading and the footnote: 14 apart, closer
+	 * when there are more) */
+	int step = SDL_min(14, (150 - 33) / (1 + HK_COUNT));
+	return (SDL_Rect) { m, (int) (px * (33 + row * step)), w, (int) (px * (step - 2)) };
 }
 
 static void draw(int scr, const View_* v) {
@@ -139,11 +139,11 @@ static void draw(int scr, const View_* v) {
 	} else if (v->sel == R_MOD) {
 		foot = N_("Select or Start still reach the game when tapped on their own, L3 still opens the quick menu");
 	} else if (v->sel == R_RESET) {
-		snprintf(line, sizeof(line), tr("%s as the hotkey button, with Start, R1, L1, X, Y, B, Left and Right"), HOME_TITLE), foot = line;
+		snprintf(line, sizeof(line), tr("%s as the hotkey button, with Start, B, R1, L1, X, Up, Down, Left and Right"), HOME_TITLE), foot = line;
 	} else if (v->sel == R_DONE) {
 		foot = N_("Kept for every game");
 	}
-	if (foot) ui_font_text(scr, TF_BODY, r.w / 2, px * 154, px * 4, foot, fc, 0);
+	if (foot) ui_font_text(scr, TF_BODY, r.w / 2, px * 151, px * 4, foot, fc, 0);
 }
 
 static bool all_released(void) {

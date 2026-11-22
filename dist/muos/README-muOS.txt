@@ -41,7 +41,7 @@ Controls
   (Kirby Tilt 'n' Tumble, Yoshi Topsy-Turvy): Settings > Controls.
 - Settings > Games: Save while playing (every few minutes, for sleep),
   Save backups (last 3 versions of each save), Low battery warning.
-- MENU + Y: swap the game and the second screen. More hotkeys in
+- MENU + Up: swap the game and the second screen. More hotkeys in
   Settings > Controls > Hotkeys.
 - GBA A is the right face button and B the bottom one, whichever controller
   layout muOS is set to. If buttons are wrong on your device,
@@ -53,7 +53,7 @@ The screen
 ----------
 Settings > Screens > Layout (or the pause menu's Screens page, for one game):
 - Game and second screen (set on the first run): the split described above.
-- Game only: the whole screen for the game; MENU + Y shows the map instead.
+- Game only: the whole screen for the game; MENU + Up shows the map instead.
 Games without second-screen support always get the whole screen.
 
 Remove

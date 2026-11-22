@@ -10,8 +10,8 @@
 #include <strings.h>
 
 const char* const shaderNames[SH_COUNT] = { N_("off"), "grid", "scanlines", "soft", "subpixels-light", "subpixels", "subpixels-strong" };
-const char* const hotkeyNames[HK_COUNT] = { "quit", "save_state", "load_state", "quick_menu", "swap_screens", "shader", "slot_prev", "slot_next" };
-static const char* const hotkeyDefaults[HK_COUNT] = { "start", "r", "l", "x", "y", "b", "left", "right" };
+const char* const hotkeyNames[HK_COUNT] = { "quit", "close_game", "save_state", "load_state", "quick_menu", "swap_screens", "shader", "slot_prev", "slot_next" };
+static const char* const hotkeyDefaults[HK_COUNT] = { "start", "b", "r", "l", "x", "up", "down", "left", "right" };
 
 void config_defaults(Config* c) {
 	memset(c, 0, sizeof(*c));
@@ -422,7 +422,7 @@ void config_usage(const char* argv0) {
 	        "  --map-interval=N       frames between map refreshes (90)\n"
 	        "  --ab-swap              GBA A on the bottom face button\n"
 	        "  --hotkey=home|select|start|l3   the hotkey button, held with another for a shortcut\n"
-	        "  --hotkey-quit=BUTTON (and -save-state, -load-state, -quick-menu, -swap-screens, -shader)\n"
+	        "  --hotkey-quit=BUTTON (and -close-game, -save-state, -load-state, -quick-menu, -swap-screens, -shader)\n"
 	        "                         each shortcut's button (a, b, x, y, l, r, l2, r2, select,\n"
 	        "                         start, l3, up, down, left, right) or none\n"
 	        "  --menu-combo=select+start|none   buttons that open the menu together (none)\n"
@@ -512,7 +512,7 @@ static const Setting settingsTable[] = {
 	{ "lcd_ghosting", "LCD ghosting", SF_BOOL, OFFB(ghosting), ARR(chOnOff), 0, 0, 0, NULL, "Moving things leave a short trail, as on a GBA." },
 	{ "smooth", "Smooth scaling", SF_BOOL, OFFB(smooth), ARR(chOnOff), 0, 0, 0, NULL, "Blurry instead of sharp: usually leave off." },
 
-	{ "layout", "Layout", SF_STR, OFFB(layout), ARR(chLayout), 0, 0, 0, NULL, "One screen: the game alone (HOME + Y shows the map instead), or the game with the second screen beside it." },
+	{ "layout", "Layout", SF_STR, OFFB(layout), ARR(chLayout), 0, 0, 0, NULL, "One screen: the game alone (HOME + D-pad up shows the map instead), or the game with the second screen beside it." },
 	{ "peek_button", "Peek at the second screen", SF_STR, OFFB(peekButton), ARR(chPeek), 0, 0, 0, NULL, "One screen: while the button is held, the map fills the screen. The game doesn't get that button." },
 	{ "peek_toggle", "Peek button", SF_BOOL, OFFB(peekToggle), ARR(chPeekMode), 0, 0, 0, NULL, "Hold it while you look, or press it once to show the second screen and again to go back." },
 	{ "swap", "Screens", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
