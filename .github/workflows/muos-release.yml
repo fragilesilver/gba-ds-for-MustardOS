@@ -32,6 +32,10 @@ jobs:
         run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends cmake zip
 
       - name: Build the .muxapp
+        # (the runners' CMake 4 refuses mGBA's bundled zlib, which asks for an
+        # older CMake; this lets it configure anyway, as CMake suggests)
+        env:
+          CMAKE_POLICY_VERSION_MINIMUM: '3.5'
         run: scripts/build-muos.sh
 
       - name: Checksum and release notes
