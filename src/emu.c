@@ -398,6 +398,12 @@ bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio) {
 	return true;
 }
 
+void emu_set_sensors(Emu* e, struct mRumble* rumble, struct mRotationSource* rotation) {
+	if (!e->core) return;
+	e->core->setPeripheral(e->core, mPERIPH_RUMBLE, rumble);
+	e->core->setPeripheral(e->core, mPERIPH_ROTATION, rotation);
+}
+
 static void hide_release(Emu* e);
 
 static struct mCoreRewindContext rewindCtx;

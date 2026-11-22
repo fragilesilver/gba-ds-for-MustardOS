@@ -82,6 +82,8 @@ void ui_stick_dpad(bool on);
 /* The pixels per inch of each screen, if known (0 if not). */
 float ui_screen_ppi(int screen);
 int ui_touch_screen(void); /* index into screens[] */
+/* ui_px, smaller if need be for a layout `units` ui_px tall to fit the screen */
+float ui_px_fit(int screen, int units);
 /* One physical display (no second panel, not spanned by sway or BananaOS):
  * where layout = single / focus apply (Settings > Screens > Layout). */
 bool ui_one_display(void);
@@ -96,6 +98,10 @@ void ui_focus_alone(bool alone);
 /* The peek button held (layout = focus): the game's part becomes the whole
  * display, for game.c to draw the second screen there; false: back. */
 void ui_peek(bool on);
+/* The device's rumble motor on or off (the rumble setting off: off). */
+void ui_rumble(bool on);
+/* The first controller's left stick (dead zone applied); false: none. */
+bool ui_left_stick(int* x, int* y);
 /* A touchscreen to swipe on (or a desktop window's mouse): the quick bar's hint. */
 bool ui_touch_available(void);
 int ui_other_screen(void); /* the non-touch screen, or the touch screen if there's only one */

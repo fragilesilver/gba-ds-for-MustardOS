@@ -19,7 +19,11 @@ const char* const hotkeyBtnNames[B_COUNT] = { "a", "b", "x", "y", "start", "sele
 static const char* const btnTitles[B_COUNT] = { "A", "B", "X", "Y", "Start", "Select", HOME_TITLE, "L1", "R1", "L2", "R2", "L3",
 	                                            N_("Up"), N_("Down"), N_("Left"), N_("Right")};
 static const char* const actionTitles[HK_COUNT] = { "Quit", N_("Quick save state"), N_("Quick load state"), N_("Open quick menu"), N_("Swap screens"),
-                                                    N_("Toggle selected shader")};
+                                                    N_("Toggle selected shader"), N_("Previous save slot"), N_("Next save slot")};
+
+const char* hotkey_btn_title(int b) {
+	return b >= 0 && b < B_COUNT ? tr(btnTitles[b]) : "";
+}
 
 static int btn_by_name(const char* s) {
 	for (int b = 0; b < B_COUNT; ++b) {
@@ -80,18 +84,21 @@ typedef struct {
 
 static SDL_Rect row_rect(int scr, int row) {
 	SDL_Rect r = screens[scr].rect;
-	float px = ui_px(scr);
+	float px = ui_px_fit(scr, 184);
 	int m = px * 10, w = r.w - m * 2;
 	if (row >= R_RESET) {
 		int bw = (w - px * 8) / 2;
 		return (SDL_Rect) { m + (row == R_DONE ? bw + px * 8 : 0), (int) (px * 164), bw, (int) (px * 16) };
 	}
-	return (SDL_Rect) { m, (int) (px * (34 + row * 16)), w, (int) (px * 13) };
+	/* (as many rows as fit between the heading and the footnote: 16 apart for
+	 * up to 7, closer for more) */
+	int step = SDL_min(16, (150 - 34) / (1 + HK_COUNT));
+	return (SDL_Rect) { m, (int) (px * (34 + row * step)), w, (int) (px * (step - 3)) };
 }
 
 static void draw(int scr, const View_* v) {
 	SDL_Rect r = screens[scr].rect;
-	float px = ui_px(scr);
+	float px = ui_px_fit(scr, 184);
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, C_BG);
 	ui_label(scr, r.w / 2, px * 12, px * 6, "Hotkeys", C_TEXT);
 	ui_font_text(scr, TF_BODY, r.w / 2, px * 24, px * 4, "In a game, hold the hotkey button and press another", C_DIM, 0);
@@ -132,7 +139,7 @@ static void draw(int scr, const View_* v) {
 	} else if (v->sel == R_MOD) {
 		foot = N_("Select or Start still reach the game when tapped on their own, L3 still opens the quick menu");
 	} else if (v->sel == R_RESET) {
-		snprintf(line, sizeof(line), tr("%s as the hotkey button, with Start, R1, L1, X, Y and B"), HOME_TITLE), foot = line;
+		snprintf(line, sizeof(line), tr("%s as the hotkey button, with Start, R1, L1, X, Y, B, Left and Right"), HOME_TITLE), foot = line;
 	} else if (v->sel == R_DONE) {
 		foot = N_("Kept for every game");
 	}
@@ -300,7 +307,11 @@ void hotkeys_run(Config* cfg) {
 		}
 
 		ui_clear();
-		for (int s = 0; s < nScreens; ++s) draw(s, &v);
+		for (int s = 0; s < nScreens; ++s) {
+			/* (layout = focus: the larger part only, the second screen's strip plain) */
+			if (ui_layout_focus() && s != ui_touch_screen()) ui_fill(s, (SDL_Rect) { 0, 0, screens[s].rect.w, screens[s].rect.h }, C_BG);
+			else draw(s, &v);
+		}
 		ui_present();
 		SDL_Delay(15);
 	}

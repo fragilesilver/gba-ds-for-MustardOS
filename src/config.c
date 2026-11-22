@@ -10,13 +10,20 @@
 #include <strings.h>
 
 const char* const shaderNames[SH_COUNT] = { N_("off"), "grid", "scanlines", "soft", "subpixels-light", "subpixels", "subpixels-strong" };
-const char* const hotkeyNames[HK_COUNT] = { "quit", "save_state", "load_state", "quick_menu", "swap_screens", "shader" };
-static const char* const hotkeyDefaults[HK_COUNT] = { "start", "r", "l", "x", "y", "b" };
+const char* const hotkeyNames[HK_COUNT] = { "quit", "save_state", "load_state", "quick_menu", "swap_screens", "shader", "slot_prev", "slot_next" };
+static const char* const hotkeyDefaults[HK_COUNT] = { "start", "r", "l", "x", "y", "b", "left", "right" };
 
 void config_defaults(Config* c) {
 	memset(c, 0, sizeof(*c));
 	strcpy(c->layout, "auto");
 	strcpy(c->peekButton, "none");
+	c->rumble = true;
+	strcpy(c->tilt, "stick");
+	c->saveBackups = true;
+	c->batteryWarn = 10;
+	strcpy(c->hotkeyStates, "quick");
+	c->controlsCard = true;
+	strcpy(c->homeName, "Home");
 	strcpy(c->saveExt, "sav");
 	strcpy(c->stateFolder, "gbads");
 	strcpy(c->scale, "integer");
@@ -193,6 +200,15 @@ static bool set_option(Config* c, const char* key, const char* val) {
 	BOOL("fast_forward", fastForward)
 	BOOL("fast_forward_toggle", ffToggle)
 	STR("peek_button", peekButton)
+	BOOL("peek_toggle", peekToggle)
+	BOOL("rumble", rumble)
+	STR("tilt", tilt)
+	INT("autosave_minutes", autosaveMinutes)
+	BOOL("save_backups", saveBackups)
+	INT("battery_warn", batteryWarn)
+	STR("hotkey_states", hotkeyStates)
+	BOOL("controls_card", controlsCard)
+	STR("home_name", homeName)
 	STR("save_dir", saveDir)
 	STR("save_ext", saveExt)
 	STR("save_from", saveFrom)
@@ -281,7 +297,7 @@ static const char* const perGameKeys[] = {
 	"layout", "swap", "scale", "map_scale", "smooth", "border_color", "overlays", "overlay_screens", "bezel_logo", "bezel_inner",
 	"bezel_outer", "shader", "lcd_strength", "color_correction", "lcd_ghosting", "frame_buffer", "match_display", "map",
 	"map_interval", "custom_logos", "pinball_live", "rewind", "rewind_seconds",
-	"fast_forward", "fast_forward_toggle", "peek_button", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_match", "screen_placement",
+	"fast_forward", "fast_forward_toggle", "peek_button", "peek_toggle", "rumble", "tilt", "ff_speed", "ab_swap", "show_fps", "audio_latency", "screen_match", "screen_placement",
 	"save_on_quit", "auto_load", "left_stick_dpad", "turbo_rate", "brightness_top", "brightness_bottom", "button_right", "button_bottom", "button_top", "button_left",
 	"button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right",
 };
@@ -448,6 +464,12 @@ static const SettingChoice chShader[] = {
 };
 static const SettingChoice chLayout[] = { { "auto", "Automatic", 0 }, { "single", "Game only", 0 }, { "focus", "Game and second screen", 0 } };
 static const SettingChoice chPeek[] = { { "none", "Off", 0 }, { "x", "Hold X (top)", 0 }, { "y", "Hold Y (left)", 0 }, { "l3", "Hold L3 (stick press)", 0 } };
+static const SettingChoice chPeekMode[] = { { "0", "Hold", 0 }, { "1", "Press to switch", 1 } };
+static const SettingChoice chTilt[] = { { "stick", "Left stick", 0 }, { N_("off"), "Off", 0 } };
+static const SettingChoice chAutosave[] = { { "0", "Off", 0 }, { "2", "Every 2 minutes", 2 }, { "5", "Every 5 minutes", 5 }, { "10", "Every 10 minutes", 10 } };
+static const SettingChoice chBattery[] = { { "0", "Off", 0 }, { "5", "5%", 5 }, { "10", "10%", 10 }, { "15", "15%", 15 }, { "20", "20%", 20 }, { "25", "25%", 25 }, { "30", "30%", 30 } };
+static const SettingChoice chHkStates[] = { { "quick", "Quick state", 0 }, { "slot", "Current slot", 0 } };
+static const SettingChoice chCard[] = { { "0", "Off", 0 }, { "1", "At the next game's start", 1 } };
 static const SettingChoice chFFMode[] = { { "0", "Hold R2", 0 }, { "1", "Press R2 to switch", 1 } };
 static const SettingChoice chSwap[] = { { "0", "Game on top", 0 }, { "1", "Game below", 1 } };
 static const SettingChoice chMatch[] = { { "keep", "Keep device shapes", 0 }, { "aspect", "Match aspect ratios", 0 }, { "size", "Match sizes and shapes", 0 } };
@@ -476,6 +498,10 @@ static const Setting settingsTable[] = {
 	{ "save_on_quit", "Save on quit", SF_BOOL, OFFB(autoSave), ARR(chOnOff), 0, 0, 0, NULL, "Closing a game saves where you are." },
 	{ "auto_load", "Auto-load", SF_BOOL, OFFB(autoLoad), ARR(chOnOff), 0, 0, 0, NULL, "Starting a game picks up where you closed it." },
 	{ "custom_logos", "Custom logos", SF_INT, OFFB(customLogos), ARR(chLogos), 0, 0, 0, NULL, "Your own and scraped logos on the second screen." },
+	{ "autosave_minutes", "Save while playing", SF_INT, OFFB(autosaveMinutes), ARR(chAutosave), 0, 0, 0, NULL, "Keeps where you are in the auto-load state as you play, in case the battery runs out while the device sleeps." },
+	{ "save_backups", "Save backups", SF_BOOL, OFFB(saveBackups), ARR(chOnOff), 0, 0, 0, NULL, "Keeps the last 3 versions of each game's save, from before each time you play it." },
+	{ "battery_warn", "Low battery warning", SF_INT, OFFB(batteryWarn), ARR(chBattery), 0, 0, 0, NULL, "A notice when the battery gets this low, and again at 5%." },
+	{ "controls_card", "Controls card", SF_BOOL, OFFB(controlsCard), ARR(chCard), 0, 0, 0, NULL, "A card of the buttons and hotkeys, shown once." },
 	{ "quick_bar_hint", "Quick bar hint", SF_BOOL, OFFB(barHint), ARR(chOnOff), 0, 0, 0, NULL, "\"Swipe up for quick menu\" at a game's start." },
 
 	{ "scale", "Game screen scale", SF_STR, OFFB(scale), ARR(chScale), 0, 0, 0, NULL, "How the game's picture fills its screen." },
@@ -488,6 +514,7 @@ static const Setting settingsTable[] = {
 
 	{ "layout", "Layout", SF_STR, OFFB(layout), ARR(chLayout), 0, 0, 0, NULL, "One screen: the game alone (HOME + Y shows the map instead), or the game with the second screen beside it." },
 	{ "peek_button", "Peek at the second screen", SF_STR, OFFB(peekButton), ARR(chPeek), 0, 0, 0, NULL, "One screen: while the button is held, the map fills the screen. The game doesn't get that button." },
+	{ "peek_toggle", "Peek button", SF_BOOL, OFFB(peekToggle), ARR(chPeekMode), 0, 0, 0, NULL, "Hold it while you look, or press it once to show the second screen and again to go back." },
 	{ "swap", "Screens", SF_BOOL, OFFB(swap), ARR(chSwap), 0, 0, 0, NULL, "Which screen the game is on." },
 	{ "screen_match", "Screen shapes", SF_STR, OFFB(screenMatch), ARR(chMatch), 0, 0, 0, NULL, "Only when your two screens differ in shape. Experimental." },
 	{ "screen_placement", "Screen placement", SF_STR, OFFB(screenPlace), ARR(chPlace), 0, 0, 0, NULL, "Pictures in the middle of their screens, or close together." },
@@ -512,6 +539,9 @@ static const Setting settingsTable[] = {
 	{ "button_dpad_down", "D-pad down", SF_STR, OFFB(faceBtn[7]), ARR(chFace), 0, 0, 0, NULL, "What D-pad down gives the game." },
 	{ "button_dpad_left", "D-pad left", SF_STR, OFFB(faceBtn[8]), ARR(chFace), 0, 0, 0, NULL, "What D-pad left gives the game." },
 	{ "button_dpad_right", "D-pad right", SF_STR, OFFB(faceBtn[9]), ARR(chFace), 0, 0, 0, NULL, "What D-pad right gives the game." },
+	{ "hotkey_states", "Save and load hotkeys", SF_STR, OFFB(hotkeyStates), ARR(chHkStates), 0, 0, 0, NULL, "Hotkey + R1 / L1: the quick state, or the slot that Hotkey + Left / Right picks." },
+	{ "rumble", "Rumble", SF_BOOL, OFFB(rumble), ARR(chOnOff), 0, 0, 0, NULL, "Games whose cartridge had a motor (Drill Dozer, WarioWare: Twisted!) make the device buzz." },
+	{ "tilt", "Tilt and turn", SF_STR, OFFB(tilt), ARR(chTilt), 0, 0, 0, NULL, "Games with a motion sensor (Kirby Tilt 'n' Tumble, Yoshi Topsy-Turvy, WarioWare: Twisted!): the left stick tilts or turns the cartridge." },
 	{ "turbo_rate", "Turbo speed", SF_INT, OFFB(turboRate), ARR(chTurbo), 0, 0, 0, NULL, "How fast Turbo A and Turbo B press." },
 
 	{ "match_display", "Match display rate", SF_BOOL, OFFB(matchDisplay), ARR(chOnOff), 0, 0, 0, NULL, "Run at the display's rate: no small regular stutter." },

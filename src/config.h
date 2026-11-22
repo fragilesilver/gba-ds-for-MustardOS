@@ -24,7 +24,7 @@ extern const char* const shaderNames[SH_COUNT]; /* gba-ds.cfg's names: off, grid
 /* Hotkeys: the hotkey button held with an action's button does the action
  * (game.c). gba-ds.cfg: hotkey_<name> = a button (a, b, x, y, l, r, l2, r2,
  * select, start, l3, up, down, left, right) or none. */
-enum { HK_QUIT, HK_SAVE, HK_LOAD, HK_BAR, HK_SWAP, HK_SHADER, HK_COUNT };
+enum { HK_QUIT, HK_SAVE, HK_LOAD, HK_BAR, HK_SWAP, HK_SHADER, HK_SLOT_PREV, HK_SLOT_NEXT, HK_COUNT };
 extern const char* const hotkeyNames[HK_COUNT]; /* quit, save_state, ... */
 
 /* custom_logos (GEN-11): the player's own and scraped logos shrunk to GBA
@@ -56,6 +56,15 @@ typedef struct Config {
 	bool fastForward;  /* hold R2 to fast-forward */
 	bool ffToggle;     /* fast_forward_toggle: R2 switches fast-forward on and off instead of being held */
 	char peekButton[8]; /* peek_button: held, the second screen fills the one display (none | x | y | l3) */
+	bool peekToggle;   /* peek_toggle: the peek button switches peeking on and off instead of being held */
+	bool rumble;       /* rumble: the cartridge's motor (Drill Dozer...) on the device's */
+	char tilt[8];      /* tilt: stick | off: the left stick tilts / turns the cartridge (Kirby Tilt 'n' Tumble...) */
+	int autosaveMinutes; /* autosave_minutes: the auto-load state saved every so often while playing (0: no) */
+	bool saveBackups;  /* save_backups: the battery save's last 3 versions kept, from before each game's start */
+	int batteryWarn;   /* battery_warn: a notice when the battery drops to this % (0: none) */
+	char hotkeyStates[8]; /* hotkey_states: quick | slot: what the save / load state hotkeys use */
+	bool controlsCard; /* controls_card: the card of the controls at the next game's start */
+	char homeName[16]; /* home_name: what the HOME button is called on the controls card (muOS: Menu) */
 	bool matchDisplay; /* run at the display's refresh rate (if close to the GBA's) instead of 59.73 Hz */
 	int mapInterval;   /* frames between periodic map refreshes */
 	int solarLevel;    /* the sunlight a sun sensor (Boktai) reads, 0-10 */

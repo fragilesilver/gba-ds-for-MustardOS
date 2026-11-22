@@ -121,14 +121,14 @@ static void open_row(View_* v, int row, const char* count) {
 
 static SDL_Rect row_rect(int scr, int row) {
 	SDL_Rect r = screens[scr].rect;
-	float px = ui_px(scr);
+	float px = ui_px_fit(scr, 184);
 	int m = px * 10;
 	return (SDL_Rect) { m, (int) (px * (36 + row * 15)), r.w - m * 2 - (int) (px * 4), (int) (px * 13) };
 }
 
 static SDL_Rect btn_rect(int scr, const View_* v, int b) {
 	SDL_Rect r = screens[scr].rect;
-	float px = ui_px(scr);
+	float px = ui_px_fit(scr, 184);
 	int m = px * 10, w = r.w - m * 2, gap = px * 6;
 	int nb = v->hasAuto ? 3 : 2, slot = b == BTN_CANCEL ? 0 : b == BTN_USE ? nb - 1 : 1;
 	int bw = (w - gap * (nb - 1)) / nb;
@@ -137,7 +137,7 @@ static SDL_Rect btn_rect(int scr, const View_* v, int b) {
 
 static void draw(int scr, const View_* v, const char* title, bool showCount, const char* autoLabel) {
 	SDL_Rect r = screens[scr].rect;
-	float px = ui_px(scr);
+	float px = ui_px_fit(scr, 184);
 	ui_fill(scr, (SDL_Rect) { 0, 0, r.w, r.h }, C_BG);
 	ui_label(scr, r.w / 2, px * 11, px * 6, title, C_TEXT);
 	/* the folder shown, its start left out (…/) when it's too long */
@@ -251,7 +251,7 @@ FolderPick folder_pick(const char* title, const char* start, const char* count, 
 		Pointer p;
 		while (ui_next_pointer(&p)) {
 			if (p.screen != ui_touch_screen()) continue;
-			float px = ui_px(p.screen);
+			float px = ui_px_fit(p.screen, 184);
 			SDL_Point pt = { p.x, p.y };
 			if (p.kind == 1) {
 				downScr = p.screen, downY = p.y, downTop = v->top, dragged = false;
@@ -323,7 +323,11 @@ FolderPick folder_pick(const char* title, const char* start, const char* count, 
 		}
 
 		ui_clear();
-		for (int s = 0; s < nScreens; ++s) draw(s, v, title, showCount, autoLabel);
+		for (int s = 0; s < nScreens; ++s) {
+			/* (layout = focus: the larger part only, the second screen's strip plain) */
+			if (ui_layout_focus() && s != ui_touch_screen()) ui_fill(s, (SDL_Rect) { 0, 0, screens[s].rect.w, screens[s].rect.h }, (SDL_Color) { 0, 0, 0, 255 });
+			else draw(s, v, title, showCount, autoLabel);
+		}
 		ui_present();
 		SDL_Delay(15);
 	}

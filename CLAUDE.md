@@ -664,7 +664,19 @@ into `dev` once it's in good shape, so that `dev` stays releasable.
   `layout = focus` (ui.c `layout_screens`: one display split 2/3 : 1/3 along
   the axis with the larger integer game scale; the big part follows `swap`;
   menus on it, `ui_touch_screen`; `ui_focus_alone` gives unsupported games
-  the whole display) and the Layout row (`ui_one_display`). muOS sources are
+  the whole display) and the Layout row (`ui_one_display`). Peek (`peek_button`,
+  `peek_toggle`: game.c `peek_set`, ui.c `ui_peek` makes the game's part the
+  whole display and draw_game draws the map there; the map capture keeps
+  running). muos-play.sh also sets GBADS_RUMBLE="FILE|ON|OFF" (muOS's
+  board/rumble, values as its RUMBLE()), `--home-name=Menu`, first-run
+  `hotkey_states = slot` and `map_scale = fit` on 720x720 / 1024x768.
+  Shared QoL from this work: rumble (mGBA's mRumbleIntegrator -> ui_rumble,
+  sysfs or SDL controller rumble) and tilt/gyro from the left stick
+  (`emu_set_sensors`, live core only; Game Boy Player rumble not emulated),
+  `autosave_minutes`, `save_backups` (`<state_dir>/save-backups`),
+  `battery_warn`, the controls card (`controls_card`; not with an input
+  script unless GBADS_CARD), slot hotkeys (HK_SLOT_PREV/NEXT), the map's
+  `mapSlow` back-off, `ui_px_fit` for fixed-unit screens. muOS sources are
   github.com/MustardOS/internal and frontend (tag 2606.0_Andromeda; main is
   Supernova).
 - EmulationStation: `/usr/bin/runemu.sh` launches games; the GBA command is

@@ -11,6 +11,16 @@
 - "Swipe up for quick menu" isn't shown on a device without a touchscreen.
 - **Peek at the second screen** (Settings > Screens, one screen only; off at first): pick X, Y or L3, and while it's held the map fills the screen, at twice the size on a 640x480 screen; let go and the game is back. The game doesn't get that button.
 - **Fast forward button** (Settings > Speed and sound, and the pause menu): *Hold R2* as before, or *Press R2 to switch*, where one press starts fast-forward and the next stops it ("Fast forward on / off" says which). While it's switched on, a small "FF" sign sits in the game screen's top right corner instead of the "Fast forwarding..." box over the second screen.
+- **Save while playing** (Settings > Games; off at first): the game's resume point (the one Auto-load starts from) is kept current every 2, 5 or 10 minutes, so a battery that runs out while the device sleeps doesn't lose your progress. muOS asks only RetroArch to save before it sleeps.
+- **Save backups** (Settings > Games, on): the last 3 versions of each game's battery save are kept in `states/save-backups`, from before each time you play it (a session that didn't change the save adds none).
+- **Low battery warning** (Settings > Games): a notice when the battery drops to 5, 10 (the default), 15, 20, 25 or 30%, and again at 5%; Off turns it off.
+- **Controls card**: the first time a game starts, a card shows the buttons and hotkeys as they're set (the menu, swapping screens, saving and loading, the save slot, closing, peek, fast forward, rewind); any button goes on. Settings > Games > Controls card shows it again at the next game.
+- **Save slot hotkeys**: Hotkey + Left / Right picks the save slot (the notice says which, and when it was saved), and with Settings > Controls > Save and load hotkeys on *Current slot*, Hotkey + R1 / L1 save to and load from it (*Quick state* keeps the quick state, as before). Both hotkeys can be changed in Settings > Controls > Hotkeys.
+- **Peek button** (Settings > Screens): *Hold*, or *Press to switch*: one press shows the second screen, the next goes back.
+- **Rumble** (Settings > Controls, on): games whose cartridge had a motor, Drill Dozer and WarioWare: Twisted!, make the device's motor run. Pokémon Pinball: Ruby & Sapphire's rumble went through the GameCube's Game Boy Player and isn't emulated.
+- **Tilt and turn** (Settings > Controls, Left stick): games with a motion sensor, Kirby Tilt 'n' Tumble and Yoshi Topsy-Turvy (tilting) and WarioWare: Twisted! (turning), take it from the left stick. Devices without a stick can't play them.
+- **The map refreshes less often when the device can't keep up**: if the game runs below 95% speed for 3 seconds (not fast-forwarding or rewinding), the map is refreshed half as often, then a third as often, for the rest of that session, with a notice. The game's speed comes first.
+- In the split layout, the Hotkeys, Map Buttons and folder screens use the larger part only (they were drawn in the strip too), and the Hotkeys and folder screens fit it (Reset and Done were cut off).
 - The muOS build reports its version as 1.5.6+muos, and its file is `gba-ds-external-core-v1.5.6+muos.muxapp`.
 
 ## v1.5.6 (2026-11-19)

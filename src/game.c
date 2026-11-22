@@ -9,6 +9,7 @@ extern void web_sleep(unsigned ms) __attribute__((import_module("env"), import_n
 #include "emu.h"
 #include "mapcap.h"
 #include "hotkeys.h"
+#include <mgba/core/interface.h>
 #include "paths.h"
 #include "ui.h"
 #include "bezel.h"
@@ -7064,6 +7065,146 @@ static void peek_set(bool on) {
 
 /* fast_forward_toggle: R2 switches fast-forward on and off (else it's held) */
 static bool ffLatched;
+static bool peekLatched; /* peek_toggle: switched on */
+
+/* The cartridge's rumble motor (Drill Dozer, WarioWare: Twisted!; not the
+ * Game Boy Player's, Pokémon Pinball: Ruby & Sapphire's, which mGBA only
+ * emulates when forced to): mGBA's integrator gives how much of each
+ * frame the game had it on; over a quarter, the device's motor runs
+ * (ui_rumble: written only when that changes). */
+static struct mRumbleIntegrator rumbleInt;
+static void rumble_value(struct mRumbleIntegrator* r, float v) {
+	(void) r;
+	ui_rumble(v > 0.25f);
+}
+/* The cartridge's tilt sensor (Kirby Tilt 'n' Tumble, Yoshi Topsy-Turvy)
+ * and gyro (WarioWare: Twisted!) from the left stick (tilt = stick), scaled
+ * as mGBA's own SDL front end does: tilt the stick's position, turning its
+ * left and right */
+static bool tilt_on(void) {
+	return !strcmp(cfg->tilt, "stick");
+}
+static int32_t tilt_x(struct mRotationSource* s) {
+	(void) s;
+	static bool told;
+	if (!told) told = true, fprintf(stderr, "tilt: the game reads the tilt sensor (%s)\n", tilt_on() ? "left stick" : "off");
+	int x, y;
+	return tilt_on() && ui_left_stick(&x, &y) ? x * 0x3800 : 0;
+}
+static int32_t tilt_y(struct mRotationSource* s) {
+	(void) s;
+	int x, y;
+	return tilt_on() && ui_left_stick(&x, &y) ? y * 0x3800 : 0;
+}
+static int32_t gyro_z(struct mRotationSource* s) {
+	(void) s;
+	int x, y;
+	return tilt_on() && ui_left_stick(&x, &y) ? x * 11000 : 0;
+}
+static struct mRotationSource tiltSource = { .readTiltX = tilt_x, .readTiltY = tilt_y, .readGyroZ = gyro_z };
+
+/* autosave_minutes: the auto-load state saved every so often while playing */
+static uint64_t autosaveAt;
+/* The map refreshed less often when the device can't keep the game at full
+ * speed (only for this run): 1, 2 or 3 times map_interval */
+static int mapSlow = 1, slowSecs;
+/* battery_warn: the warnings given (at the setting, at 5%), again once it's back up */
+static bool batWarned[2];
+
+/* save_backups: the battery save as it was before this game, kept as
+ * <state_dir>/save-backups/<game>.<ext>.1 (.2, .3 the ones before), when
+ * it changed since the last one */
+static void save_backup(void) {
+	if (!cfg->saveBackups) return;
+	struct stat st;
+	if (stat(gp.sav, &st) != 0 || st.st_size <= 0) return;
+	char dir[1100], name[1300], from[1310], to[1310];
+	snprintf(dir, sizeof(dir), "%s/save-backups", cfg->stateDir);
+	mkdirs(dir);
+	const char* base = strrchr(gp.sav, '/');
+	snprintf(name, sizeof(name), "%s/%s", dir, base ? base + 1 : gp.sav);
+	snprintf(to, sizeof(to), "%s.1", name);
+	FILE *a = fopen(gp.sav, "rb"), *b = fopen(to, "rb");
+	bool same = a && b;
+	while (same) {
+		char ba[4096], bb[4096];
+		size_t na = fread(ba, 1, sizeof(ba), a), nb = fread(bb, 1, sizeof(bb), b);
+		if (na != nb || memcmp(ba, bb, na)) same = false;
+		if (!na) break;
+	}
+	if (a) fclose(a);
+	if (b) fclose(b);
+	if (same) return;
+	for (int i = 2; i >= 1; --i) {
+		snprintf(from, sizeof(from), "%s.%d", name, i);
+		snprintf(to, sizeof(to), "%s.%d", name, i + 1);
+		rename(from, to);
+	}
+	snprintf(to, sizeof(to), "%s.1", name);
+	if (copy_file(gp.sav, to)) fprintf(stderr, "save backup: %s\n", to);
+}
+
+/* The controls card (controls_card, on until it's been shown once): the
+ * buttons and hotkeys as they're set, over the game screen before the game
+ * starts; any button goes on */
+static bool cardOpen;
+static int cardFrames;
+static void draw_card(void) {
+	int s = ui_touch_screen();
+	SDL_Rect r = screens[s].rect;
+	float px = ui_px(s);
+	const char* home = cfg->homeName[0] ? cfg->homeName : "Home";
+	char keys[12][48], what[12][96];
+	int n = 0;
+#define CARD(k, w) do { snprintf(keys[n], sizeof(keys[n]), "%s", k); snprintf(what[n], sizeof(what[n]), "%s", w); ++n; } while (0)
+	char k[48];
+	CARD(home, tr("Open the menu: save, load, settings, close"));
+	if (hkBtn[HK_SWAP] >= 0 && nScreens == 2) {
+		snprintf(k, sizeof(k), "%s + %s", home, hotkey_btn_title(hkBtn[HK_SWAP]));
+		CARD(k, tr("Swap the game and the second screen"));
+	}
+	if (hkBtn[HK_SAVE] >= 0 && hkBtn[HK_LOAD] >= 0) {
+		snprintf(k, sizeof(k), "%s + %s / %s", home, hotkey_btn_title(hkBtn[HK_SAVE]), hotkey_btn_title(hkBtn[HK_LOAD]));
+		CARD(k, strcmp(cfg->hotkeyStates, "slot") ? tr("Save / load the quick state") : tr("Save / load the current slot"));
+	}
+	if (hkBtn[HK_SLOT_PREV] >= 0 && hkBtn[HK_SLOT_NEXT] >= 0) {
+		snprintf(k, sizeof(k), "%s + %s / %s", home, hotkey_btn_title(hkBtn[HK_SLOT_PREV]), hotkey_btn_title(hkBtn[HK_SLOT_NEXT]));
+		CARD(k, tr("Change the save slot"));
+	}
+	if (hkBtn[HK_QUIT] >= 0) {
+		snprintf(k, sizeof(k), "%s + %s", home, hotkey_btn_title(hkBtn[HK_QUIT]));
+		CARD(k, tr("Close the game"));
+	}
+	int pb = peek_btn();
+	if (pb >= 0 && ui_one_display()) {
+		snprintf(k, sizeof(k), cfg->peekToggle ? "%s" : tr("Hold %s"), hotkey_btn_title(pb));
+		CARD(k, tr("Peek at the second screen"));
+	}
+	if (cfg->fastForward) CARD(cfg->ffToggle ? "R2" : tr("Hold R2"), tr("Fast forward"));
+	if (cfg->rewind) CARD(tr("Hold L2"), tr("Rewind"));
+#undef CARD
+	int cap = px * 5, title = px * 7, rowH = px * 9, m = px * 6;
+	int h = title + px * 8 + n * rowH + px * 14, w = r.w - m * 2;
+	if (h > r.h - m * 2) rowH = (r.h - m * 2 - title - px * 22) / SDL_max(1, n), h = r.h - m * 2;
+	SDL_Rect b = { m, (r.h - h) / 2, w, h };
+	ui_fill(s, (SDL_Rect) { 0, 0, r.w, r.h }, (SDL_Color) { 0, 0, 0, 170 });
+	ui_key(s, b, px * 4, KEY_PLAIN);
+	SDL_Color ink = ui_key_ink();
+	SDL_Color hi = ui_accent_color(AC_HI);
+	ui_label(s, b.x + b.w / 2, b.y + px * 4 + title / 2, title, "Controls", ink);
+	int y = b.y + title + px * 8 + rowH / 2;
+	int split = b.x + b.w * 2 / 5;
+	for (int i = 0; i < n; ++i, y += rowH) {
+		ui_font_text(s, TF_BOLD, split - px * 4, y, cap, keys[i], hi, 1);
+		ui_font_text(s, TF_BODY, split + px * 4, y, cap, what[i], ink, -1);
+	}
+	ui_font_text(s, TF_BODY, b.x + b.w / 2, b.y + b.h - px * 7, cap, "Press any button to play", ink, 0);
+}
+
+/* hotkey_states: the save / load state hotkeys' file (the quick state, or the menu's slot) */
+static const char* hotkey_state_path(void) {
+	return strcmp(cfg->hotkeyStates, "slot") ? gp.quick : gp.slot[stateSlot];
+}
 
 static void swap_screens(void) {
 	/* the game moves to the other view, whose copy of the frame may be old
@@ -7453,6 +7594,8 @@ static SDL_Rect ach_area(int scr) {
 
 static void open_menu(void) {
 	peek_set(false);
+	peekLatched = false;
+	ui_rumble(false);
 	bar_close();
 	barShown = 0;
 	cheatsOpen = false;
@@ -7545,6 +7688,8 @@ static void setting_applied(const Setting* st) {
 		logo_refresh();
 	} else if (!strcmp(k, "ab_swap") || !strncmp(k, "button_", 7)) {
 		fb_default();
+	} else if (!strcmp(k, "rumble")) {
+		if (!cfg->rumble) ui_rumble(false);
 	} else if (!strcmp(k, "pinball_live")) {
 		snprintf(menuNote, sizeof(menuNote), tr("Takes effect after you close and restart GBA DS"));
 	}
@@ -8046,11 +8191,15 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	game_keys_reload();
 	patches_setup(rom); /* GEN-9: the patches folder, what's on, and the plan every core opens the ROM with */
 	profile_set_rom(NULL, 0);
+	save_backup(); /* (before the game opens it) */
 	if (!emu_open(&emu, rom, gp.sav, true)) {
 		ui_osd("Couldn't load the game");
 		return fromLibrary ? GAME_TO_LIBRARY : GAME_QUIT_APP;
 	}
 	profile_set_rom(emu.gameCode, emu.romCrc); /* (a known colour patch: the profile's colours as it draws them) */
+	mRumbleIntegratorInit(&rumbleInt);
+	rumbleInt.setRumble = rumble_value;
+	emu_set_sensors(&emu, &rumbleInt.d, &tiltSource);
 	fprintf(stderr, "game %s (%s), save %s\n", gp.base, emu.gameCode, gp.sav);
 	{
 		char d[640];
@@ -8080,6 +8229,12 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	peeking = false;
 	ui_peek(false);
 	ffLatched = false;
+	peekLatched = false;
+	mapSlow = 1, slowSecs = 0;
+	batWarned[0] = batWarned[1] = false;
+	autosaveAt = 0;
+	cardOpen = cfg->controlsCard && !cfg->inputScript[0] ? true : cfg->controlsCard && getenv("GBADS_CARD") != NULL;
+	cardFrames = 0;
 	{
 		/* a compilation: the profile of the game running in it (none yet) */
 		const MapProfile* gp = profile_find(emu.gameCode);
@@ -8717,11 +8872,21 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 				switch (i) {
 				case HK_QUIT: exitTo = GAME_QUIT_APP, done = true; break;
 				/* (the quick state, as the quick bar's buttons) */
-				case HK_SAVE: ui_osd(state_save(gp.quick) ? "State saved." : "Save failed."); break;
-				case HK_LOAD:
-					if (!file_exists(gp.quick)) ui_osd("No quick state saved yet.");
-					else if (state_load(gp.quick)) { if (!stateWarned) ui_osd("State loaded."); forceMap = true; }
+				case HK_SAVE:
+					if (!strcmp(cfg->hotkeyStates, "slot")) ui_osd(state_save(hotkey_state_path()) ? tr("State saved to slot %d") : "Save failed.", stateSlot);
+					else ui_osd(state_save(gp.quick) ? "State saved." : "Save failed.");
+					break;
+				case HK_LOAD: {
+					bool slot = !strcmp(cfg->hotkeyStates, "slot");
+					if (!file_exists(hotkey_state_path())) ui_osd(slot ? tr("Nothing saved in slot %d yet") : "No quick state saved yet.", stateSlot);
+					else if (state_load(hotkey_state_path())) { if (!stateWarned) ui_osd(slot ? tr("Slot %d loaded") : "State loaded.", stateSlot); forceMap = true; }
 					else ui_osd("Load failed.");
+					break;
+				}
+				case HK_SLOT_PREV:
+				case HK_SLOT_NEXT:
+					slot_step(i == HK_SLOT_NEXT ? 1 : -1);
+					ui_osd("%s", slot_label());
 					break;
 				case HK_BAR: bar_toggle(); break;
 				case HK_SWAP: swap_screens(); break;
@@ -8896,6 +9061,29 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		}
 		wasMenu = menuOpen;
 
+		if (cardOpen && menuOpen) cardOpen = false;
+		if (cardOpen) {
+			/* (any button, after a moment: the card goes, and that press isn't the game's) */
+			bool any = false;
+			for (int b = 0; b < B_COUNT; ++b) any = any || btn_pressed(b);
+			if (++cardFrames > 20 && any) {
+				cardOpen = false;
+				cfg->controlsCard = uniCfg.controlsCard = false;
+				char prefs[1100];
+				prefs_file(prefs, sizeof(prefs));
+				const char* kv[1][2] = { { "controls_card", "0" } };
+				config_kv_update(prefs, "# written by gba-ds's menus; overrides gba-ds.cfg", 1, kv);
+				for (int b = 0; b < B_COUNT; ++b) if (btnNow[b]) suppress[b] = true;
+			} else {
+				ui_clear();
+				draw_game();
+				draw_card();
+				ui_present();
+				SDL_Delay(16);
+				next = SDL_GetPerformanceCounter() / freq;
+				continue;
+			}
+		}
 		if (menuOpen) {
 			ra_idle();
 			ui_clear();
@@ -8918,6 +9106,11 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			int pb = peek_btn();
 			bool held = pb >= 0 && ui_one_display() && btnNow[pb] && !btnNow[modBtn];
 			if (held) suppress[pb] = true; /* (the peek button isn't the game's) */
+			if (cfg->peekToggle) {
+				if (held && btn_pressed(pb)) peekLatched = !peekLatched;
+				if (pb < 0) peekLatched = false;
+				held = peekLatched;
+			}
 			peek_set(held && (mc || logoOnly) && cfg->map);
 		}
 		/* fast_forward_toggle: a press of R2 switches it */
@@ -8990,6 +9183,23 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 
 		bool rewinding = cfg->rewind && btnNow[B_L2];
 		bool ff = cfg->fastForward && (cfg->ffToggle ? ffLatched : btnNow[B_R2]) && !rewinding;
+		/* autosave_minutes: the auto-load state (and the game list's resume
+		 * picture) kept current while playing, in case the battery runs out
+		 * asleep; the time it took goes in the log */
+		if (cfg->autosaveMinutes > 0 && !ff && !rewinding) {
+			uint64_t nowMs = SDL_GetTicks64();
+			/* (GBADS_AUTOSAVE_SECS: tests, seconds instead of the minutes) */
+			uint64_t every = getenv("GBADS_AUTOSAVE_SECS") ? (uint64_t) atoi(getenv("GBADS_AUTOSAVE_SECS")) * 1000 : (uint64_t) cfg->autosaveMinutes * 60000;
+			if (!autosaveAt) {
+				autosaveAt = nowMs + every;
+			} else if (nowMs >= autosaveAt) {
+				bool ok = state_save(gp.autoState);
+				if (ok) save_thumbs();
+				fprintf(stderr, "frame %llu: %s %s while playing (%llu ms)\n", (unsigned long long) frameCount, ok ? "auto-saved" : "auto-save failed:",
+				        gp.autoState, (unsigned long long) (SDL_GetTicks64() - nowMs));
+				autosaveAt = nowMs + every;
+			}
+		}
 		ffBox = ff;
 		/* Max (ff_speed 0): as many frames as fit in about 70% of a display
 		 * frame (the rest for drawing it), up to FF_MAX_RUNS; the sound
@@ -9259,7 +9469,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			bool cheapFail = why && !strcmp(why, "map button did nothing");
 			/* (a profile's own interval, when it's quicker: Swordcraft Story) */
 			const MapProfile* ip = mapcap_profile(mc);
-			int every = ip && ip->interval > 0 && ip->interval < cfg->mapInterval ? ip->interval : cfg->mapInterval;
+			int every = (ip && ip->interval > 0 && ip->interval < cfg->mapInterval ? ip->interval : cfg->mapInterval) * mapSlow;
 			int interval = cheapFail ? every : every << SDL_min(fails, 3);
 			/* after failures, a room change still triggers a try, but no more
 			 * often than the normal interval */
@@ -9447,6 +9657,34 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (now - fpsT0 >= 1.0) {
 			fps = fpsFrames / (now - fpsT0);
 			speedPct = fps / GBA_FPS * 100.0;
+			/* Can't keep up (under 95% for 3 s in a row, not fast-forwarding,
+			 * rewinding or just back from the menu): the map refreshed less
+			 * often, up to 3 times map_interval, for this run */
+			if (mc && cfg->map && frameCount > 300 && !ffBox && !rewindBox && frameCount >= audioQuietUntil && speedPct < 95.0) {
+				if (++slowSecs >= 3 && mapSlow < 3) {
+					++mapSlow;
+					slowSecs = 0;
+					fprintf(stderr, "frame %llu: %.0f%% speed for 3 s: the map refreshes every %d frames now (map_interval %d x %d)\n",
+					        (unsigned long long) frameCount, speedPct, cfg->mapInterval * mapSlow, cfg->mapInterval, mapSlow);
+					ui_osd_long("The map refreshes less often, to keep the game at full speed");
+				}
+			} else {
+				slowSecs = 0;
+			}
+			/* battery_warn: once at the setting, once at 5% (again after it's back up) */
+			if (cfg->batteryWarn > 0) {
+				int pct = battery_percent();
+				if (pct >= 0) {
+					if (pct > cfg->batteryWarn + 2) batWarned[0] = batWarned[1] = false;
+					if (!batWarned[0] && pct <= cfg->batteryWarn) {
+						batWarned[0] = true;
+						ui_osd_long("Battery low: %d%%", pct);
+					} else if (!batWarned[1] && cfg->batteryWarn > 5 && pct <= 5) {
+						batWarned[1] = true;
+						ui_osd_long("Battery very low: %d%%", pct);
+					}
+				}
+			}
 			if (debug) fprintf(stderr, "speed %.1f fps (%.0f%%)\n", fps, speedPct);
 			fpsFrames = 0;
 			fpsT0 = now;
@@ -9496,6 +9734,7 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 	ui_on_background(NULL);
 	ui_on_foreground(NULL);
 	ui_sync_view(-1);
+	ui_rumble(false);
 	fprintf(stderr, "leaving game after %llu frames\n", (unsigned long long) frameCount);
 	if (bugPend.pending) {
 		/* (a report waiting for its note: saved with what's typed) */

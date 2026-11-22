@@ -437,7 +437,11 @@ void mapper_run(const Config* cfg) {
 		}
 
 		ui_clear();
-		for (int s = 0; s < nScreens; ++s) draw(s, &v, touch);
+		for (int s = 0; s < nScreens; ++s) {
+			/* (layout = focus: the larger part only, the second screen's strip plain) */
+			if (ui_layout_focus() && s != ui_touch_screen()) ui_fill(s, (SDL_Rect) { 0, 0, screens[s].rect.w, screens[s].rect.h }, C_BG);
+			else draw(s, &v, touch);
+		}
 		ui_present();
 		SDL_Delay(15);
 	}

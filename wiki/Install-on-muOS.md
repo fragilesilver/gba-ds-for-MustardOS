@@ -30,6 +30,10 @@ Opening the app again puts the core back if a muOS update took it away. On Andro
 ## How it fits in
 
 - **Fast forward:** hold R2, or set Settings → Speed and sound → Fast forward button to *Press R2 to switch* to switch it on with one press and off with the next (a small "FF" in the corner shows it's on).
+- **First start:** a card shows the buttons and hotkeys. muOS's MENU button is the hotkey button; Menu + Left / Right picks the save slot, and Menu + R1 / L1 save to and load from it.
+- **Rumble and tilt:** Drill Dozer and WarioWare: Twisted! run the device's motor; Kirby Tilt 'n' Tumble, Yoshi Topsy-Turvy and WarioWare: Twisted! take tilting and turning from the left stick (Settings → Controls).
+- **Sleep:** muOS asks only RetroArch to save before the device sleeps. Settings → Games → Save while playing keeps GBA DS's resume point current every few minutes instead, and Save backups keeps the last 3 versions of each battery save.
+- **Speed:** muOS's Governor option for the content (or the folder) applies to GBA DS as to any core; *performance* gives it the most headroom. If the game still can't keep full speed, GBA DS refreshes the map less often and says so. GBA DS's own Settings → Speed and sound → Performance is best left at *Let the System Decide* on muOS.
 - **Buttons:** GBA A is the right face button and B the bottom one, whichever controller layout muOS is set to (Retro or Modern); MENU is HOME. If a button is wrong on your device, Settings → Controls → Map Buttons maps them.
 - **Quit and sleep:** muOS's own quit closes GBA DS as it does any core, and GBA DS saves where you are on the way out (Save on quit).
 - **Where things go:** these replace ROCKNIX's paths unless you've changed them in `gba-ds.cfg`:

@@ -36,6 +36,11 @@ Controls
   Speed and sound > Fast forward button).
 - Peek: Settings > Screens > Peek at the second screen picks X, Y or L3;
   hold it and the map fills the screen, let go and the game is back.
+- MENU + Left / Right: pick the save slot; MENU + R1 / L1: save / load it.
+- Rumble (Drill Dozer, WarioWare: Twisted!) and tilt from the left stick
+  (Kirby Tilt 'n' Tumble, Yoshi Topsy-Turvy): Settings > Controls.
+- Settings > Games: Save while playing (every few minutes, for sleep),
+  Save backups (last 3 versions of each save), Low battery warning.
 - MENU + Y: swap the game and the second screen. More hotkeys in
   Settings > Controls > Hotkeys.
 - GBA A is the right face button and B the bottom one, whichever controller

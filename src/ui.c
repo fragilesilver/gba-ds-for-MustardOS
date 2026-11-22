@@ -809,6 +809,50 @@ uint64_t ui_ticks(void) {
 	return ticks;
 }
 
+/* The device's rumble motor. GBADS_RUMBLE="FILE|ON|OFF" (muOS: muos-play.sh,
+ * from the device's board/rumble and what muOS's own RUMBLE writes there):
+ * ON or OFF written to FILE. Else SDL's rumble on the controllers that have it. */
+void ui_rumble(bool on) {
+	static int last = -1;
+	if (cfg && !cfg->rumble) on = false;
+	if ((int) on == last) return;
+	last = on;
+	if (debug) fprintf(stderr, "rumble %s\n", on ? "on" : "off");
+	const char* spec = getenv("GBADS_RUMBLE");
+	if (spec && *spec) {
+		char path[256] = "", onv[24] = "1", offv[24] = "0";
+		if (sscanf(spec, "%255[^|]|%23[^|]|%23s", path, onv, offv) >= 1 && path[0]) {
+			FILE* f = fopen(path, "w");
+			if (f) {
+				fputs(on ? onv : offv, f);
+				fclose(f);
+			} else {
+				static bool told;
+				if (!told) told = true, fprintf(stderr, "rumble: can't write %s\n", path);
+			}
+		}
+		return;
+	}
+	for (int p = 0; p < 8; ++p) {
+		if (pads[p]) SDL_GameControllerRumble(pads[p], on ? 0xC000 : 0, on ? 0xC000 : 0, on ? 10000 : 0);
+	}
+}
+
+/* The first controller's left stick, -32768..32767 each way, a little dead
+ * zone in the middle; false with no controller */
+bool ui_left_stick(int* x, int* y) {
+	for (int p = 0; p < 8; ++p) {
+		if (!pads[p]) continue;
+		int ax = SDL_GameControllerGetAxis(pads[p], SDL_CONTROLLER_AXIS_LEFTX);
+		int ay = SDL_GameControllerGetAxis(pads[p], SDL_CONTROLLER_AXIS_LEFTY);
+		*x = abs(ax) < 4000 ? 0 : ax;
+		*y = abs(ay) < 4000 ? 0 : ay;
+		return true;
+	}
+	*x = *y = 0;
+	return false;
+}
+
 bool ui_one_display(void) {
 	return oneDisplay;
 }
@@ -2197,6 +2241,12 @@ void ui_dim(int screen, Uint8 alpha) {
 
 float ui_px(int screen) {
 	return SDL_max(2.0f, screens[screen].rect.h / 192.0f);
+}
+
+/* ui_px, made smaller if need be for a layout `units` px tall to fit the
+ * screen (layout = focus: the game's part of a 640x480 screen is 320 tall) */
+float ui_px_fit(int screen, int units) {
+	return SDL_min(ui_px(screen), (float) screens[screen].rect.h / units);
 }
 
 int ui_text_width(const char* s, int px) {

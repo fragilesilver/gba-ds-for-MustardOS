@@ -104,17 +104,44 @@ if [ -n "$SDLNAME" ] && [ -f "$GCDB" ]; then
 	fi
 fi
 
+# --- the rumble motor: where muOS says it is, written as muOS's own RUMBLE
+# writes it (script/var/display.sh): most boards 1 on / 0 off, the RK ones'
+# PWM 1 / 1000000, the RG Vita Pro's 0 / 1 ---
+RUMBLE_PATH=$(getvar device board/rumble)
+if [ -n "$RUMBLE_PATH" ] && [ -e "$RUMBLE_PATH" ]; then
+	case "$(getvar device board/name)" in
+	rk-g350-v) R_ON=1 R_OFF=0 ;;
+	rk*) R_ON=1 R_OFF=1000000 ;;
+	rg-vita*) R_ON=0 R_OFF=1 ;;
+	*) R_ON=1 R_OFF=0 ;;
+	esac
+	export GBADS_RUMBLE="$RUMBLE_PATH|$R_ON|$R_OFF"
+	log "rumble: $GBADS_RUMBLE"
+fi
+# muOS's MENU button is GBA DS's HOME: named so on the controls card
+add "--home-name=Menu"
+# the CPU governor muOS set for this content (its Governor option), for reports
+log "governor: $(cat /sys/devices/system/cpu/cpufreq/policy0/scaling_governor 2>/dev/null || echo unknown)"
+
 # --- GBA DS's own files: this folder, or data_dir in data-folder.cfg ---
 DATA=$(sed -n 's/^[[:space:]]*data_dir[[:space:]]*=[[:space:]]*//p' "$DIR/data-folder.cfg" 2>/dev/null | tail -n 1 | sed 's:/*[[:space:]]*$::')
 case "$DATA" in /*) [ -d "$(dirname "$DATA")" ] || DATA="$DIR" ;; *) DATA="$DIR" ;; esac
 # first run: the game with the second screen under it (a muOS device has one screen)
 mkdir -p "$DATA/states"
 PREFS="$DATA/states/prefs.cfg"
-if ! grep -q '^layout *=' "$PREFS" 2>/dev/null; then
-	[ -s "$PREFS" ] || echo "# written by gba-ds's menus; overrides gba-ds.cfg" > "$PREFS"
-	echo "layout = focus" >> "$PREFS"
-	log "first run: layout = focus (Settings > Screens > Layout)"
-fi
+[ -s "$PREFS" ] || echo "# written by gba-ds's menus; overrides gba-ds.cfg" > "$PREFS"
+first() { # KEY VALUE: written once, then the menus' to change
+	grep -q "^$1 *=" "$PREFS" 2>/dev/null && return
+	echo "$1 = $2" >> "$PREFS"
+	log "first run: $1 = $2"
+}
+first layout focus                 # Settings > Screens > Layout
+first hotkey_states slot           # Menu + R1 / L1 save and load the slot Menu + Left / Right picks
+# the second screen's strip has room for more than 1x on these screens
+# (720x240 on 720x720, 1024x256 on 1024x768): Full Width fills it
+case "$(getvar device mux/width)x$(getvar device mux/height)" in
+720x720 | 1024x768) first map_scale fit ;;
+esac
 
 # --- the program: here, or a copy in memory where the card won't run programs ---
 GBADS=./gba-ds

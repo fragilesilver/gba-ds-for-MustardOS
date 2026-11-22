@@ -63,6 +63,11 @@ typedef struct Emu {
 } Emu;
 
 /* savePath may be NULL (no battery save attached). */
+struct mRumble;
+struct mRotationSource;
+/* The cartridge's rumble motor and tilt / gyro sensor: only the game being
+ * played gets them (not the hidden copies), after emu_open. */
+void emu_set_sensors(Emu* e, struct mRumble* rumble, struct mRotationSource* rotation);
 bool emu_open(Emu* e, const char* romPath, const char* savePath, bool audio);
 /* ROMs may also be in a .zip or .7z (the first GBA ROM inside is used). */
 bool emu_is_rom_name(const char* name);   /* .gba, .zip, .7z */

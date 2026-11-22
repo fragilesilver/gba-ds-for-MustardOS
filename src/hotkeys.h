@@ -15,6 +15,8 @@ extern const char* const hotkeyBtnNames[];
  * Quit on START with START as the hotkey is SELECT. Logs what it drops when
  * log is set. */
 void hotkeys_resolve(const Config* cfg, int* mod, int btn[HK_COUNT], bool log);
+/* A button as players know it ("R1", "Left"...), in the interface's language. */
+const char* hotkey_btn_title(int b);
 /* Settings > Hotkeys: a screen of its own, until Done. */
 void hotkeys_run(Config* cfg);
 
