@@ -1,5 +1,32 @@
 # GBA DS: notes for Claude sessions
 
+## This fork (fragilesilver/gba-ds): read first
+
+This repository is a fork of kyannon/gba-ds for muOS (GBA DS External Core;
+see "muOS" under Device facts). Where the rest of this file describes
+upstream's own process (its `dev` / `android` / `game/*` branches, kyannon as
+commit author, upstream's releases, the private fixtures repo, Android and
+web-player publishing), these rules replace it here:
+
+- **Branches:** `main` is this fork's released state. Work happens on a topic
+  branch and is merged into `main` when done; never push to kyannon/gba-ds.
+- **Upstream updates (weekly, or sooner when urgent):** fetch upstream's newest
+  release tag and merge it into a topic branch (resolve conflicts keeping both
+  sides; regenerate `assets/i18n/gba-ds.pot` / `src/i18n_data.*` with
+  `tools/i18n.py all` instead of merging them), build `scripts/build-muos.sh`,
+  check the split layout headless, then merge into `main`. The weekly
+  "Upstream check" workflow opens an issue when upstream has a newer release.
+- **Releases:** the changelog's top section is this fork's
+  (`## vX.Y.Z+muos: ... (date)`, above upstream's sections); push a tag
+  `vX.Y.Z-muos` on `main` (`-muos.2` and so on for a second release of the
+  same upstream version). `.github/workflows/muos-release.yml` builds the
+  `.muxapp` and publishes the GitHub release with that section as its notes.
+- **Commits:** the session's own identity (not kyannon's author line).
+- **Upstream-only workflows** (android, regress, web-player, wiki) are limited
+  to `github.repository == 'kyannon/gba-ds'`; keep those guards when merging.
+- **Issues** come from muOS users (templates in `.github/ISSUE_TEMPLATE/`);
+  second-screen requests for games belong upstream.
+
 GBA DS is a GBA emulator (libmgba) for dual-screen handhelds, built for the
 **Anbernic RG DS Plus on ROCKNIX** (two 1024x768 screens, the bottom one a
 touchscreen; the RG DS has two 640x480 ones). The game runs on one screen; the other shows the game's own

@@ -1,0 +1,62 @@
+# GBA DS External Core for muOS: build the .muxapp and publish a GitHub
+# release when a tag like v1.5.7-muos is pushed (or by hand, "Run workflow",
+# for a test build kept as the run's artifact).
+#
+# The release notes are this fork's top section of CHANGELOG.md, followed by
+# the archive's SHA-256.
+name: muOS release
+
+on:
+  push:
+    tags: ['v*-muos*']
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    if: github.repository != 'kyannon/gba-ds'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build tools
+        run: sudo apt-get update -q && sudo apt-get install -y -q --no-install-recommends cmake zip
+
+      - name: Build the .muxapp
+        run: scripts/build-muos.sh
+
+      - name: Checksum and release notes
+        id: notes
+        run: |
+          set -euo pipefail
+          FILE=$(ls dist/gba-ds-external-core-v*.muxapp)
+          SUM=$(sha256sum "$FILE" | cut -d' ' -f1)
+          echo "file=$FILE" >> "$GITHUB_OUTPUT"
+          # this fork's section: from the first "## " heading to the next one
+          awk 'BEGIN{n=0} /^## /{n++} n==1' CHANGELOG.md | tail -n +2 > notes.md
+          {
+            echo
+            echo "### Install"
+            echo
+            echo "Copy \`$(basename "$FILE")\` to the card's \`MUOS/ARCHIVE\` folder, install it with muOS's Archive Manager, open Applications > GBA DS once, then choose **GBA DS - External Core** for your GBA folder in Core Assignment. Installing over an older version keeps your settings and states. Details: [Install on muOS](https://github.com/${GITHUB_REPOSITORY}/blob/main/wiki/Install-on-muOS.md)."
+            echo
+            echo "SHA-256: \`$SUM\`"
+          } >> notes.md
+          echo "::notice title=SHA-256::$SUM  $(basename "$FILE")"
+
+      - name: Keep the build (runs by hand)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: muos-muxapp
+          path: ${{ steps.notes.outputs.file }}
+
+      - name: Publish the release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          name: GBA DS External Core ${{ github.ref_name }}
+          body_path: notes.md
+          files: ${{ steps.notes.outputs.file }}

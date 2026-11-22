@@ -17,6 +17,8 @@ concurrency:
 
 jobs:
   publish:
+    # (upstream's own: this muOS fork publishes neither the web player nor the wiki)
+    if: github.repository == 'kyannon/gba-ds'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

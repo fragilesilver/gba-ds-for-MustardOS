@@ -1,3 +1,29 @@
+# GBA DS External Core for muOS
+
+**This is a fork of [GBA DS](https://github.com/kyannon/gba-ds) by kyannon, for [muOS](https://muos.dev) (MustardOS) handhelds.** It packages GBA DS for muOS 2612 Supernova and 2606 Andromeda as an app and as a Game Boy Advance core you can pick in muOS's Core Assignment, and adapts it to handhelds with one screen. Everything else, every supported game and its second screen, comes from upstream GBA DS; upstream's own README follows below this section.
+
+**Download:** the latest `gba-ds-external-core-v…+muos.muxapp` from this fork's [Releases](https://github.com/fragilesilver/gba-ds/releases). **Install:** copy it to the card's `MUOS/ARCHIVE` folder, install it with muOS's Archive Manager, open Applications > GBA DS once, then choose **GBA DS - External Core** for your GBA folder in Core Assignment. The full guide: [Install on muOS](wiki/Install-on-muOS.md).
+
+### What this fork changes
+
+- **muOS packaging:** a `.muxapp` with the GBA DS app, and **GBA DS - External Core** added to muOS's Game Boy Advance cores (Supernova's per-system definitions or Andromeda's `core.json`, put back if a muOS update removes it). Games started from muOS's lists close back to muOS.
+- **muOS's folders and controls:** battery saves shared with RetroArch's mGBA core (`MUOS/save/file/mGBA`), screenshots in `MUOS/screenshot`, RetroArch's cheats and RetroAchievements account, the face buttons by position whichever controller layout muOS uses, MENU as the hotkey button, the device's rumble motor, and muOS's quit and sleep.
+- **One screen, two pictures:** a *Game and second screen* layout splits the screen (the game at 2x with the map at 1x under it on 640x480), plus **hold or press to peek** at the second screen full-size.
+- **Quality of life:** a first-start controls card, save slot hotkeys, *save while playing* (for a battery that runs out asleep) and battery save backups, a low battery warning, fast forward as hold or toggle (with a small corner badge), rumble and tilt for the cartridges that had them, and the map refreshing less often when the device can't keep full speed.
+- **Built for the devices muOS runs on:** Cortex-A53 (plain ARMv8.0), no update checks (upstream's updates are the ROCKNIX package).
+
+The details are in [CHANGELOG.md](CHANGELOG.md) (this fork's section is on top) and the settings in [Settings](wiki/Settings.md).
+
+### Updates, issues and support
+
+- **Updates are weekly**, or sooner for something urgent: upstream GBA DS releases are merged here (a weekly check opens an issue when there's a new one), then a new `v<version>-muos` release is built and published automatically.
+- **Found a problem on muOS, or have an idea?** [Open an issue](https://github.com/fragilesilver/gba-ds/issues/new/choose) here. For second-screen support for a game, or a problem that also happens on ROCKNIX, Android or the web player, please use [upstream's issues](https://github.com/kyannon/gba-ds/issues).
+- Building it yourself: `scripts/build-muos.sh` on an x86_64 Linux host (see "Building" below).
+
+Like upstream, this fork is free software under the GNU GPL version 3, and it includes no games, BIOS files or other copyrighted game data.
+
+---
+
 # GBA DS
 
 <p align="center"><img src="docs/lineup.png" width="100%" alt="GBA DS on three dual-screen handhelds: Metroid: Zero Mission with its map on a DS-style handheld, Pokémon Pinball's table across both screens of one with a wide top screen, and Golden Sun with its menu on another"></p>

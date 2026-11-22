@@ -14,6 +14,8 @@ on:
 
 jobs:
   apk:
+    # (upstream's own: its signing keys and private test fixtures aren't in this muOS fork)
+    if: github.repository == 'kyannon/gba-ds'
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v5

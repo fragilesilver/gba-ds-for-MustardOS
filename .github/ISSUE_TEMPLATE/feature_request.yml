@@ -1,0 +1,19 @@
+name: Idea or request (muOS)
+description: Something that would make GBA DS External Core better on muOS
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For second-screen support for a new game, please ask [upstream GBA DS](https://github.com/kyannon/gba-ds/issues): new games arrive here with the weekly update.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would you like?
+      description: What you'd use it for helps decide how to do it.
+    validations:
+      required: true
+  - type: input
+    id: device
+    attributes:
+      label: Your muOS device (optional)

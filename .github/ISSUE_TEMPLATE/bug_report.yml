@@ -1,0 +1,47 @@
+name: Bug report (muOS)
+description: Something in GBA DS External Core doesn't work on your muOS device
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting! This repository is the **muOS version** of GBA DS. For a problem with what a game shows on its second screen that also happens on ROCKNIX, Android or the web player, please report it to [upstream GBA DS](https://github.com/kyannon/gba-ds/issues) instead.
+  - type: input
+    id: version
+    attributes:
+      label: GBA DS version
+      description: Shown at the bottom right of the game list, e.g. 1.5.7+muos
+    validations:
+      required: true
+  - type: input
+    id: muos
+    attributes:
+      label: muOS version and device
+      description: e.g. 2612 Supernova on an RG35XX Plus
+    validations:
+      required: true
+  - type: input
+    id: game
+    attributes:
+      label: Game
+      description: The game and its region, if it's about one game
+  - type: dropdown
+    id: started
+    attributes:
+      label: Started from
+      options:
+        - muOS's game list (GBA DS - External Core)
+        - Applications > GBA DS
+        - Both
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what you expected
+      description: Steps to see it again help a lot. Photos or screenshots are welcome.
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: Attach or paste MUOS/application/GBA DS/gba-ds.log (and core-install.log for Core Assignment problems). A bug report from the pause menu (Extras > Submit a Bug Report, saved in bug-reports/) is even better.

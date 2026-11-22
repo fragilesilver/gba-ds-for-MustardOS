@@ -1,0 +1,40 @@
+# Weekly: has upstream GBA DS (kyannon/gba-ds) put out a release this fork
+# hasn't merged yet? If so, an issue says so (one per release), so the
+# weekly update picks it up. Run it by hand from the Actions tab too.
+name: Upstream check
+
+on:
+  schedule:
+    - cron: '17 3 * * 1'   # Mondays, 03:17 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  check:
+    if: github.repository != 'kyannon/gba-ds'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compare with upstream's latest release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          OURS=$(cat VERSION)
+          LATEST=$(gh api repos/kyannon/gba-ds/releases/latest --jq .tag_name | sed 's/^v//')
+          echo "this fork: $OURS, upstream: $LATEST"
+          NEWER=$(printf '%s\n%s\n' "$OURS" "$LATEST" | sort -V | tail -n 1)
+          if [ "$LATEST" = "$OURS" ] || [ "$NEWER" = "$OURS" ]; then
+            echo "up to date"
+            exit 0
+          fi
+          TITLE="Upstream GBA DS v$LATEST is out"
+          if gh issue list --state all --search "\"$TITLE\" in:title" --json title --jq '.[].title' | grep -qxF "$TITLE"; then
+            echo "already noted: $TITLE"
+            exit 0
+          fi
+          gh issue create --title "$TITLE" --label upstream --body "kyannon/gba-ds released [v$LATEST](https://github.com/kyannon/gba-ds/releases/tag/v$LATEST); this fork is on $OURS. Merge it, check the muOS build, and tag v$LATEST-muos." \
+            || gh issue create --title "$TITLE" --body "kyannon/gba-ds released [v$LATEST](https://github.com/kyannon/gba-ds/releases/tag/v$LATEST); this fork is on $OURS. Merge it, check the muOS build, and tag v$LATEST-muos."
