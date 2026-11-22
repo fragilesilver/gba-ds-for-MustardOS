@@ -4,5 +4,5 @@ contact_links:
     url: https://github.com/kyannon/gba-ds/issues
     about: Second-screen support for a game, or problems that aren't muOS-specific
   - name: Install on muOS
-    url: https://github.com/fragilesilver/gba-ds/blob/main/wiki/Install-on-muOS.md
+    url: https://github.com/fragilesilver/gba-ds-for-MustardOS/blob/main/wiki/Install-on-muOS.md
     about: How to install, assign the core and set it up

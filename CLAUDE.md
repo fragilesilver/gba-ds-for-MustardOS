@@ -1,6 +1,6 @@
 # GBA DS: notes for Claude sessions
 
-## This fork (fragilesilver/gba-ds): read first
+## This fork (fragilesilver/gba-ds-for-MustardOS): read first
 
 This repository is a fork of kyannon/gba-ds for muOS (GBA DS External Core;
 see "muOS" under Device facts). Where the rest of this file describes

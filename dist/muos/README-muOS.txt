@@ -66,5 +66,5 @@ the core out of muOS's list with "sh core.sh remove" in MUOS/application/GBA DS
 Logs: gba-ds.log and core-install.log in MUOS/application/GBA DS.
 
 This is GBA DS by kyannon (https://github.com/kyannon/gba-ds), with muOS
-support added in https://github.com/fragilesilver/gba-ds. Free software,
+support added in https://github.com/fragilesilver/gba-ds-for-MustardOS. Free software,
 GPL version 3 (licenses/).
