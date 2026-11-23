@@ -1,8 +1,21 @@
 # GBA DS External Core for muOS
 
+<p align="center">
+<img src="docs/muos/aria-of-sorrow.png" width="32%" alt="Castlevania: Aria of Sorrow on a 640x480 muOS handheld: the game at twice its size on top, the castle map with 99.4% under it">
+<img src="docs/muos/ffta.png" width="32%" alt="Final Fantasy Tactics Advance: the game on top, the selected unit's status page under it">
+<img src="docs/muos/breath-of-fire.png" width="32%" alt="Breath of Fire in a battle: the game on top, the party overview with each character's level, HP and AP under it">
+</p>
+
+<sub>On a 640x480 muOS handheld: the game pixel perfect at 2x, its own map or status screen under it.</sub>
+
 **This is a fork of [GBA DS](https://github.com/kyannon/gba-ds) by kyannon, for [muOS](https://muos.dev) (MustardOS) handhelds.** It packages GBA DS for muOS 2612 Supernova and 2606 Andromeda as an app and as a Game Boy Advance core you can pick in muOS's Core Assignment, and adapts it to handhelds with one screen. Everything else, every supported game and its second screen, comes from upstream GBA DS; upstream's own README follows below this section.
 
 **Download:** the latest `gba-ds-external-core-v…+muos.muxapp` from this fork's [Releases](https://github.com/fragilesilver/gba-ds-for-MustardOS/releases). **Install:** copy it to the card's `MUOS/ARCHIVE` folder, install it with muOS's Archive Manager, open Applications > GBA DS once, then choose **GBA DS - External Core** for your GBA folder in Core Assignment. The full guide: [Install on muOS](wiki/Install-on-muOS.md).
+
+<p align="center">
+<img src="docs/muos/game-list.png" width="40%" alt="The GBA DS app's game list on muOS: a grid of game logos, the selected game's logo below">
+<img src="docs/muos/settings.png" width="40%" alt="GBA DS Settings on muOS: Games, Display, Screens, Controls, Speed and sound, Second screen and System, version 1.5.7+muos">
+</p>
 
 ### What this fork changes
 
