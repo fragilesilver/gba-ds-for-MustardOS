@@ -51,7 +51,7 @@ jobs:
             echo
             echo "### Install"
             echo
-            echo "Copy \`$(basename "$FILE")\` to the card's \`MUOS/ARCHIVE\` folder, install it with muOS's Archive Manager, open Applications > GBA DS once, then choose **GBA DS - External Core** for your GBA folder in Core Assignment. Installing over an older version keeps your settings and states. Details: [Install on muOS](https://github.com/${GITHUB_REPOSITORY}/blob/main/wiki/Install-on-muOS.md)."
+            echo "Copy \`$(basename "$FILE")\` to the \`ARCHIVE\` folder at the root of the SD card, install it with muOS's Archive Manager, open Applications > GBA DS once, then choose **GBA DS - External Core** for your GBA folder in Core Assignment. Installing over an older version keeps your settings and states. Details: [Install on muOS](https://github.com/${GITHUB_REPOSITORY}/blob/main/wiki/Install-on-muOS.md)."
             echo
             echo "SHA-256: \`$SUM\`"
           } >> notes.md

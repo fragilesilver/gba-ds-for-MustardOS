@@ -9,7 +9,7 @@ at 1x below it).
 
 Install
 -------
-1. Copy gba-ds-external-core-v...+muos.muxapp to the card's MUOS/ARCHIVE folder.
+1. Copy gba-ds-external-core-v...+muos.muxapp to the ARCHIVE folder at the root of the SD card.
 2. On the device, open muOS's Archive Manager, choose the archive and
    install it. It goes into MUOS/application/GBA DS.
 3. Open Applications > GBA DS once. This adds "GBA DS - External Core" to

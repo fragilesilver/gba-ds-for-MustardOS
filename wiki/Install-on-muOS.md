@@ -20,7 +20,7 @@ These handhelds have one screen, so GBA DS splits it (Settings → Screens → *
 
 ## Install
 
-1. Download `gba-ds-external-core-v…+muos.muxapp` and copy it to the card's `MUOS/ARCHIVE` folder.
+1. Download `gba-ds-external-core-v…+muos.muxapp` and copy it to the `ARCHIVE` folder at the root of the SD card.
 2. On the device, open muOS's **Archive Manager** and install it. It goes into `MUOS/application/GBA DS`.
 3. Open **Applications → GBA DS** once. This adds **GBA DS - External Core** to muOS's Game Boy Advance cores, and the game list opens: you can play from here.
 4. To start games from muOS's own lists: highlight your GBA folder (or a single game), open **Core Assignment**, and choose **GBA DS - External Core** for the folder or that game. Closing a game (the pause menu's Close GBA DS, or muOS's quit) goes back to muOS.
