@@ -1,7 +1,7 @@
 # GBA DS External Core for muOS
 
 <p align="center">
-<img src="docs/muos/aria-of-sorrow.png" width="24%" alt="Castlevania: Aria of Sorrow on a 640x480 muOS handheld: the game at twice its size on top, the castle map with 99.4% under it">
+<img src="docs/muos/harmony-of-dissonance.png" width="24%" alt="Castlevania: Harmony of Dissonance on a 640x480 muOS handheld: the game at twice its size on top, the Castle B map with 99.4% under it">
 <img src="docs/muos/metroid-zero-mission.png" width="24%" alt="Metroid: Zero Mission: Samus in Brinstar on top, the game's own area map under it">
 <img src="docs/muos/pokemon-pinball.png" width="24%" alt="Pokémon Pinball: Ruby &amp; Sapphire: the table's upper half on top and its lower half with the flippers under it, as one tall table">
 <img src="docs/muos/f-zero-maximum-velocity.png" width="24%" alt="F-Zero: Maximum Velocity: the race on top with the speed and rank, the power meter, laps, time and course map under it">
@@ -9,7 +9,7 @@
 <p align="center">
 <img src="docs/muos/ffta.png" width="24%" alt="Final Fantasy Tactics Advance: the game on top, the selected unit's status page under it">
 <img src="docs/muos/breath-of-fire.png" width="24%" alt="Breath of Fire in a battle: the game on top, the party overview with each character's level, HP and AP under it">
-<img src="docs/muos/pokemon-romhack.png" width="24%" alt="A Pokémon romhack in a battle: the game on top, the Party under it">
+<img src="docs/muos/pokemon-radical-red.png" width="24%" alt="Pokémon Radical Red (a FireRed romhack) in a battle: the game on top, the Party under it">
 </p>
 
 <sub>On a 640x480 muOS handheld: the game pixel perfect at 2x, and under it the game's own map, status screen or race HUD, or the rest of the pinball table.</sub>
