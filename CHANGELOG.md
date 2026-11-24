@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.6+muos: GBA DS External Core for muOS (not yet released)
+## v1.6+muos: GBA DS External Core for muOS (2026-11-24)
 
 Upstream GBA DS v1.6 (below) with muOS support and these additions.
 
