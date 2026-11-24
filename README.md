@@ -26,7 +26,7 @@
 ### What this fork changes
 
 - **muOS packaging:** a `.muxapp` with the GBA DS app, and **GBA DS - External Core** added to muOS's Game Boy Advance cores (Supernova's per-system definitions or Andromeda's `core.json`, put back if a muOS update removes it). Games started from muOS's lists close back to muOS.
-- **muOS's folders and controls:** battery saves shared with RetroArch's mGBA core (`MUOS/save/file/mGBA`), screenshots in `MUOS/screenshot`, RetroArch's cheats and RetroAchievements account, the face buttons by position whichever controller layout muOS uses, MENU as the hotkey button, the device's rumble motor, and muOS's quit and sleep.
+- **muOS's folders and controls:** battery saves and save states shared with RetroArch's mGBA core (`MUOS/save/file/mGBA`, `MUOS/save/state/mGBA`), muOS's GBA BIOS for the GBA BIOS option, screenshots in `MUOS/screenshot`, RetroArch's cheats and RetroAchievements account, the face buttons by position whichever controller layout muOS uses, MENU as the hotkey button, the device's rumble motor, and muOS's quit and sleep.
 - **One screen, two pictures:** a *Game and second screen* layout splits the screen (the game at 2x with the map at 1x under it on 640x480), plus **hold or press to peek** at the second screen full-size.
 - **Quality of life:** a first-start controls card, save slot hotkeys, *save while playing* (for a battery that runs out asleep) and battery save backups, a low battery warning, fast forward as hold or toggle (with a small corner badge), rumble and tilt for the cartridges that had them, and the map refreshing less often when the device can't keep full speed.
 - **Built for the devices muOS runs on:** Cortex-A53 (plain ARMv8.0), no update checks (upstream's updates are the ROCKNIX package).

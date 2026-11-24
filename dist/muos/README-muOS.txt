@@ -26,6 +26,12 @@ Your games
 - Battery saves are shared with RetroArch's mGBA core
   (MUOS/save/file/mGBA/<game>.srm): a game goes on from the same save in
   either one.
+- Save states are shared with RetroArch's mGBA core too
+  (MUOS/save/state/mGBA): slots 0-9 and the resume point. States GBA DS kept
+  of its own before are copied there once (and kept in states/).
+  Settings > System > Save States switches back to GBA DS's own.
+- A GBA BIOS in MUOS/bios/gba_bios.bin is copied for Settings > System >
+  GBA BIOS (off until you switch it on; GBA DS doesn't need one).
 - Screenshots go to MUOS/screenshot. RetroArch's cheat files are found.
 - RetroAchievements uses the account in muOS's RetroArch settings.
 
@@ -41,6 +47,8 @@ Controls
   (Kirby Tilt 'n' Tumble, Yoshi Topsy-Turvy): Settings > Controls.
 - Settings > Games: Save while playing (every few minutes, for sleep),
   Save backups (last 3 versions of each save), Low battery warning.
+- MENU + A: turn the second screen's pages or views, in games that have
+  them, once Settings > Second screen > Contextual toggle is on.
 - MENU + Up: swap the game and the second screen. More hotkeys in
   Settings > Controls > Hotkeys.
 - GBA A is the right face button and B the bottom one, whichever controller

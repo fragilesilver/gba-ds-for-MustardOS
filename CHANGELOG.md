@@ -23,6 +23,10 @@ Upstream GBA DS v1.6 (below) with muOS support and these additions.
 - **Tilt and turn** (Settings > Controls, Left stick): games with a motion sensor, Kirby Tilt 'n' Tumble and Yoshi Topsy-Turvy (tilting) and WarioWare: Twisted! (turning), take it from the left stick. Devices without a stick can't play them.
 - **The map refreshes less often when the device can't keep up**: if the game runs below 95% speed for 3 seconds (not fast-forwarding or rewinding), the map is refreshed half as often, then a third as often, for the rest of that session, with a notice. The game's speed comes first.
 - In the split layout, the Hotkeys, Map Buttons and folder screens use the larger part only (they were drawn in the strip too), and the Hotkeys and folder screens fit it (Reset and Done were cut off).
+- **Save states shared with RetroArch's mGBA core** (muOS): slots 0-9 and the resume point are RetroArch's own files in its state folder (`MUOS/save/state/mGBA`), so a state saved in either loads in the other, as the battery saves already did. This is set once, on the first run of this version; states GBA DS kept of its own are copied there first (where RetroArch has none of the same name), and stay in GBA DS's `states` folder for when Settings > System > Save States switches back. The quick state stays GBA DS's. Not tried with RetroArch on a device yet.
+- **GBA BIOS from muOS** (muOS): muOS's `MUOS/bios/gba_bios.bin`, if you have it, is copied to where Settings > System > GBA BIOS looks for it. That setting is still off until you switch it on.
+- **Turn the second screen** (upstream's Contextual toggle, Settings > Second screen): on muOS it's Menu + A; the controls card lists it when it's on, in games that have something to turn. The on-screen key is off on muOS (it needs a touchscreen).
+- On a device without a touchscreen, the notice at the start of a game says "Press Menu for the menu" instead of "Tap the screen or press HOME".
 - The muOS build reports its version as 1.6+muos, and its file is `gba-ds-external-core-v1.6+muos.muxapp`.
 
 ## v1.6 (2026-11-22)

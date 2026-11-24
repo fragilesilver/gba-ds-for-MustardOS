@@ -13,7 +13,9 @@
 #   RetroAchievements account from muOS's RetroArch settings
 # - the controls by position (GBA A on the right button, B on the bottom one),
 #   from muOS's own mapping of the device
-# - on the first run, Layout: Game and second screen (Settings > Screens)
+# - on the first run, Layout: Game and second screen (Settings > Screens),
+#   save states shared with RetroArch's mGBA core, and muOS's GBA BIOS (if
+#   it has one) where Settings > System > GBA BIOS finds it
 # The log is gba-ds.log in the app's folder (written to memory during the
 # run, then copied: the card never holds the game up).
 
@@ -75,6 +77,8 @@ esac
 
 # --- RetroAchievements: the account in muOS's RetroArch settings ---
 RA_CFG=/opt/muos/share/info/config/retroarch.cfg
+# (and RetroArch's own settings, for its save state folder: see "save states" below)
+[ -z "$(cfgval retroarch_cfg)" ] && [ -f "$RA_CFG" ] && add "--retroarch-cfg=$RA_CFG"
 if [ -z "$(cfgval ra_username)" ] && [ -f "$RA_CFG" ] && grep -q '^cheevos_enable *= *"true"' "$RA_CFG"; then
 	u=$(sed -n 's/^cheevos_username *= *"\(.*\)"/\1/p' "$RA_CFG" | head -n 1)
 	w=$(sed -n 's/^cheevos_password *= *"\(.*\)"/\1/p' "$RA_CFG" | head -n 1)
@@ -142,6 +146,60 @@ first hotkey_states slot           # Menu + R1 / L1 save and load the slot Menu 
 case "$(getvar device mux/width)x$(getvar device mux/height)" in
 720x720 | 1024x768) first map_scale fit ;;
 esac
+# the toggle's on-screen key is for touchscreens: Menu + A turns the second screen here
+first toggle_button off
+
+# --- a GBA BIOS: muOS's own (MUOS/bios/gba_bios.bin), copied to where GBA DS
+# looks for one (its data folder's bios/), for Settings > System > GBA BIOS.
+# It stays off until switched on there, as everywhere. ---
+for b in "$STORE/bios/gba_bios.bin" /mnt/mmc/MUOS/bios/gba_bios.bin /mnt/sdcard/MUOS/bios/gba_bios.bin; do
+	[ -f "$b" ] || continue
+	[ "$(wc -c < "$b" 2>/dev/null | tr -d ' ')" = 16384 ] || continue
+	if [ ! -f "$DATA/bios/gba_bios.bin" ] || ! cmp -s "$b" "$DATA/bios/gba_bios.bin"; then
+		mkdir -p "$DATA/bios" && cp "$b" "$DATA/bios/gba_bios.bin" && log "GBA BIOS: copied from $b"
+	fi
+	break
+done
+
+# --- save states: shared with RetroArch's mGBA core (once; Settings > System >
+# Save States switches them back to GBA DS's own) ---
+# Slots 0-9 and the resume point become RetroArch's files in its state folder
+# (MUOS/save/state/mGBA/<game>.state, .state1-.state9, .state.auto), so a state
+# saved in either loads in the other. States GBA DS kept of its own are copied
+# there first, where RetroArch has none of that name (the originals stay in
+# states/, for when it's switched back). The quick state stays GBA DS's.
+LIBCFG="$DATA/states/library.cfg"
+if [ ! -f "$DATA/states/muos-states-shared" ] && [ -f "$RA_CFG" ]; then
+	raval() { sed -n "s/^$1 *= *\"\(.*\)\"/\1/p" "$RA_CFG" | tail -n 1; }
+	SDIR=$(raval savestate_directory)
+	if [ -n "$SDIR" ] && [ "$SDIR" != default ] && [ "$(raval savestates_in_content_dir)" != true ] \
+	   && [ "$(raval sort_savestates_by_content_enable)" != true ]; then
+		[ "$(raval sort_savestates_enable)" = false ] || SDIR="${SDIR%/}/mGBA"
+		mkdir -p "$SDIR" 2>/dev/null
+		n=0
+		for f in "$DATA"/states/*.slot[0-9].state "$DATA"/states/*.auto.state; do
+			[ -f "$f" ] || continue
+			b=$(basename "$f")
+			case "$b" in
+			*.auto.state) to="${b%.auto.state}.state.auto" ;;
+			*.slot0.state) to="${b%.slot0.state}.state" ;;
+			*) k=${b%.state}; k=${k##*.slot}; to="${b%.slot[0-9].state}.state$k" ;;
+			esac
+			[ -e "$SDIR/$to" ] && continue
+			cp -p "$f" "$SDIR/$to" && n=$((n + 1))
+		done
+		if [ -f "$LIBCFG" ] && grep -q '^state_folder *=' "$LIBCFG"; then
+			sed -i 's/^state_folder *=.*/state_folder = retroarch/' "$LIBCFG"
+		else
+			echo "state_folder = retroarch" >> "$LIBCFG"
+		fi
+		: > "$DATA/states/muos-states-shared"
+		log "save states: shared with RetroArch in $SDIR ($n of GBA DS's own copied there)"
+	else
+		log "save states: RetroArch keeps its states by game folder here, so GBA DS's stay its own"
+		: > "$DATA/states/muos-states-shared"
+	fi
+fi
 
 # --- the program: here, or a copy in memory where the card won't run programs ---
 GBADS=./gba-ds

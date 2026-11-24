@@ -7746,6 +7746,10 @@ static void draw_card(void) {
 		snprintf(k, sizeof(k), "%s + %s", home, hotkey_btn_title(hkBtn[HK_SWAP]));
 		CARD(k, tr("Swap the game and the second screen"));
 	}
+	if (cfg->toggle && hkBtn[HK_TOGGLE] >= 0 && nScreens == 2 && toggle_supported()) { /* (Contextual toggle on, in a game that has something to turn) */
+		snprintf(k, sizeof(k), "%s + %s", home, hotkey_btn_title(hkBtn[HK_TOGGLE]));
+		CARD(k, tr("Turn the second screen"));
+	}
 	if (hkBtn[HK_SAVE] >= 0 && hkBtn[HK_LOAD] >= 0) {
 		snprintf(k, sizeof(k), "%s + %s / %s", home, hotkey_btn_title(hkBtn[HK_SAVE]), hotkey_btn_title(hkBtn[HK_LOAD]));
 		CARD(k, strcmp(cfg->hotkeyStates, "slot") ? tr("Save / load the quick state") : tr("Save / load the current slot"));
@@ -8944,7 +8948,9 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 		if (!stateWarned) ui_osd(ok ? "Patches changed: carrying on from where you were" : "Patches changed");
 	} else if (cfg->autoLoad && !patchReload && file_exists(gp.autoState)) { /* (not right after switching a patch) */
 		if (state_load(gp.autoState)) {
-			if (!stateWarned) ui_osd("Resumed. Tap or HOME for the menu");
+			if (stateWarned) {
+			} else if (ui_touch_available()) ui_osd("Resumed. Tap or HOME for the menu");
+			else ui_osd("Resumed. Press %s for the menu", cfg->homeName[0] ? cfg->homeName : "HOME"); /* (no touchscreen: muOS's MENU) */
 		} else if (stateLoadKind == STATE_FILE_OTHER_CORE) {
 			/* (RetroArch's automatic state, from another of its GBA cores) */
 			ui_osd_long("Not resumed: RetroArch's automatic state is from another of its GBA cores. To share states, set RetroArch's GBA core to mGBA.");
@@ -8954,7 +8960,8 @@ static enum GameExit game_run_inner(Config* c, const char* rom, bool fromLibrary
 			ui_osd_long("Not resumed: the automatic state was saved without a GBA BIOS, and GBA DS is set to use yours. Switch it off in Settings > System > GBA BIOS.");
 		}
 	} else {
-		ui_osd("Tap the screen or press HOME for the menu");
+		if (ui_touch_available()) ui_osd("Tap the screen or press HOME for the menu");
+		else ui_osd("Press %s for the menu", cfg->homeName[0] ? cfg->homeName : "HOME");
 	}
 	if (cfg->barPinned) barOpen = true, barSince = SDL_GetTicks(); /* (pinned: up from the start) */
 	rewind_setup();

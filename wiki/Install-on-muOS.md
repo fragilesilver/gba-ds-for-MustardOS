@@ -31,6 +31,7 @@ Opening the app again puts the core back if a muOS update took it away. On Andro
 
 - **Fast forward:** hold R2, or set Settings → Speed and sound → Fast forward button to *Press R2 to switch* to switch it on with one press and off with the next (a small "FF" in the corner shows it's on).
 - **First start:** a card shows the buttons and hotkeys. muOS's MENU button is the hotkey button; Menu + Left / Right picks the save slot, and Menu + R1 / L1 save to and load from it.
+- **Turn the second screen:** with Settings → Second screen → Contextual toggle on, Menu + A turns the second screen's pages (a unit's, the party's) or switches between its views (the map and the status), in the games that have them. The on-screen key is off on muOS.
 - **Rumble and tilt:** Drill Dozer and WarioWare: Twisted! run the device's motor; Kirby Tilt 'n' Tumble, Yoshi Topsy-Turvy and WarioWare: Twisted! take tilting and turning from the left stick (Settings → Controls).
 - **Sleep:** muOS asks only RetroArch to save before the device sleeps. Settings → Games → Save while playing keeps GBA DS's resume point current every few minutes instead, and Save backups keeps the last 3 versions of each battery save.
 - **Speed:** muOS's Governor option for the content (or the folder) applies to GBA DS as to any core; *performance* gives it the most headroom. If the game still can't keep full speed, GBA DS refreshes the map less often and says so. GBA DS's own Settings → Speed and sound → Performance is best left at *Let the System Decide* on muOS.
@@ -44,7 +45,9 @@ Opening the app again puts the core back if a muOS update took it away. On Andro
 | Battery saves (`.srm`) | `MUOS/save/file/mGBA`: the same file RetroArch's mGBA core uses, so a game goes on from where you left it in either |
 | Screenshots | `MUOS/screenshot` |
 | Cheats | `MUOS/application/GBA DS/cheats`, and muOS's RetroArch cheats |
-| Save states, settings from the menu, logos, patches | `MUOS/application/GBA DS/` (`states/`, `logos/`, `patches/`) |
+| Save states (slots 0-9 and the resume point) | `MUOS/save/state/mGBA`: RetroArch's mGBA core's own, so a state saved in either loads in the other. Set on the first run of v1.6+muos: states GBA DS kept before are copied there (where RetroArch has none of that name) and stay in `states/`; Settings → System → Save States switches back to GBA DS's own |
+| The quick state, settings from the menu, logos, patches | `MUOS/application/GBA DS/` (`states/`, `logos/`, `patches/`) |
+| GBA BIOS (optional) | `MUOS/bios/gba_bios.bin` is copied to `MUOS/application/GBA DS/bios/` for Settings → System → GBA BIOS, which stays off until you switch it on |
 | Logs | `MUOS/application/GBA DS/gba-ds.log`, and `core-install.log` for adding the core |
 
 - **RetroAchievements:** the account in muOS's RetroArch settings is used (casual mode) when achievements are on there.

@@ -76,7 +76,7 @@ msgid_plural "%d RetroArch states here"
 msgstr[0] ""
 msgstr[1] ""
 
-#: src/game.c:6783 src/game.c:9211 src/game.c:9527 src/game.c:9534 ...
+#: src/game.c:6783 src/game.c:9218 src/game.c:9534 src/game.c:9541 ...
 #, c-format
 msgid "%s"
 msgstr ""
@@ -240,7 +240,7 @@ msgstr ""
 msgid "A dark line under each row of pixels"
 msgstr ""
 
-#: src/game.c:8812
+#: src/game.c:8816
 msgid "A few seconds"
 msgstr ""
 
@@ -293,7 +293,7 @@ msgstr ""
 msgid "All games"
 msgstr ""
 
-#: src/game.c:8351
+#: src/game.c:8355
 msgid "Already the value for all games"
 msgstr ""
 
@@ -441,12 +441,12 @@ msgstr ""
 msgid "BananaOS's systems list has no Game Boy Advance entry."
 msgstr ""
 
-#: src/game.c:10329
+#: src/game.c:10336
 #, c-format
 msgid "Battery low: %d%%"
 msgstr ""
 
-#: src/game.c:10332
+#: src/game.c:10339
 #, c-format
 msgid "Battery very low: %d%%"
 msgstr ""
@@ -537,7 +537,7 @@ msgstr ""
 msgid "Centered"
 msgstr ""
 
-#: src/game.c:7755
+#: src/game.c:7759
 msgid "Change the save slot"
 msgstr ""
 
@@ -570,12 +570,12 @@ msgstr ""
 msgid "Choose GBA DS folder"
 msgstr ""
 
-#: src/game.c:8424
+#: src/game.c:8428
 #, c-format
 msgid "Choose it again to close %s: %s"
 msgstr ""
 
-#: src/game.c:8423
+#: src/game.c:8427
 msgid "Choose it again to restart: unsaved progress is lost"
 msgstr ""
 
@@ -613,11 +613,11 @@ msgstr ""
 msgid "Close game"
 msgstr ""
 
-#: src/game.c:1180 src/game.c:1282 src/game.c:7763
+#: src/game.c:1180 src/game.c:1282 src/game.c:7767
 msgid "Close GBA DS"
 msgstr ""
 
-#: src/game.c:7759
+#: src/game.c:7763
 msgid "Close the game"
 msgstr ""
 
@@ -666,7 +666,7 @@ msgstr ""
 msgid "Contextual toggle"
 msgstr ""
 
-#: src/game.c:5747 src/game.c:7781
+#: src/game.c:5747 src/game.c:7785
 msgid "Controls"
 msgstr ""
 
@@ -700,7 +700,7 @@ msgstr ""
 msgid "Couldn't load the achievements"
 msgstr ""
 
-#: src/game.c:8789
+#: src/game.c:8793
 msgid "Couldn't load the game"
 msgstr ""
 
@@ -905,7 +905,7 @@ msgstr ""
 msgid "Fast (20 a second)"
 msgstr ""
 
-#: src/config.c:558 src/game.c:7770
+#: src/config.c:558 src/game.c:7774
 msgid "Fast forward"
 msgstr ""
 
@@ -913,11 +913,11 @@ msgstr ""
 msgid "Fast forward button"
 msgstr ""
 
-#: src/game.c:9758
+#: src/game.c:9765
 msgid "Fast forward off"
 msgstr ""
 
-#: src/game.c:9758
+#: src/game.c:9765
 msgid "Fast forward on"
 msgstr ""
 
@@ -1018,7 +1018,7 @@ msgstr ""
 msgid "Game only"
 msgstr ""
 
-#: src/game.c:8499
+#: src/game.c:8503
 msgid "Game restarted"
 msgstr ""
 
@@ -1225,7 +1225,7 @@ msgstr ""
 msgid "Hold"
 msgstr ""
 
-#: src/game.c:7767
+#: src/game.c:7771
 #, c-format
 msgid "Hold %s"
 msgstr ""
@@ -1234,7 +1234,7 @@ msgstr ""
 msgid "Hold it while you look, or press it once to show the second screen and again to go back."
 msgstr ""
 
-#: src/game.c:7771
+#: src/game.c:7775
 msgid "Hold L2"
 msgstr ""
 
@@ -1246,7 +1246,7 @@ msgstr ""
 msgid "Hold L3 (stick press)"
 msgstr ""
 
-#: src/config.c:479 src/game.c:7770
+#: src/config.c:479 src/game.c:7774
 msgid "Hold R2"
 msgstr ""
 
@@ -1474,7 +1474,7 @@ msgstr ""
 msgid "Lines between the pixels, like a GBA's screen"
 msgstr ""
 
-#: src/game.c:8482
+#: src/game.c:8486
 msgid "Load failed"
 msgstr ""
 
@@ -1608,7 +1608,7 @@ msgstr ""
 msgid "No achievements for this ROM (MD5 %s)"
 msgstr ""
 
-#: src/game.c:8442
+#: src/game.c:8446
 msgid "No cheats found (see Cheats in the wiki)"
 msgstr ""
 
@@ -1640,7 +1640,7 @@ msgstr ""
 msgid "No patches here yet"
 msgstr ""
 
-#: src/game.c:9201 src/game.c:9519
+#: src/game.c:9208 src/game.c:9526
 msgid "No quick state saved yet."
 msgstr ""
 
@@ -1676,15 +1676,15 @@ msgstr ""
 msgid "Not in the folder any more: it's left out"
 msgstr ""
 
-#: src/game.c:8950
+#: src/game.c:8956
 msgid "Not resumed: RetroArch's automatic state is from another of its GBA cores. To share states, set RetroArch's GBA core to mGBA."
 msgstr ""
 
-#: src/game.c:8952
+#: src/game.c:8958
 msgid "Not resumed: the automatic state was saved with a GBA BIOS (RetroArch's core had one). To use your own, see Settings > System > GBA BIOS."
 msgstr ""
 
-#: src/game.c:8954
+#: src/game.c:8960
 msgid "Not resumed: the automatic state was saved without a GBA BIOS, and GBA DS is set to use yours. Switch it off in Settings > System > GBA BIOS."
 msgstr ""
 
@@ -1704,7 +1704,7 @@ msgstr ""
 msgid "Nothing mapped"
 msgstr ""
 
-#: src/game.c:8463 src/game.c:9519
+#: src/game.c:8467 src/game.c:9526
 #, c-format
 msgid "Nothing saved in slot %d yet"
 msgstr ""
@@ -1895,7 +1895,7 @@ msgstr ""
 msgid "Patches"
 msgstr ""
 
-#: src/game.c:8944
+#: src/game.c:8948
 msgid "Patches changed"
 msgstr ""
 
@@ -1903,7 +1903,7 @@ msgstr ""
 msgid "Patches changed since the game started"
 msgstr ""
 
-#: src/game.c:8944
+#: src/game.c:8948
 msgid "Patches changed: carrying on from where you were"
 msgstr ""
 
@@ -1915,7 +1915,7 @@ msgstr ""
 msgid "Paused"
 msgstr ""
 
-#: src/config.c:523 src/game.c:7768
+#: src/config.c:523 src/game.c:7772
 msgid "Peek at the second screen"
 msgstr ""
 
@@ -1947,7 +1947,7 @@ msgstr ""
 msgid "Pink"
 msgstr ""
 
-#: src/game.c:9228
+#: src/game.c:9235
 msgid "Pinned: the bar stays up."
 msgstr ""
 
@@ -2000,6 +2000,11 @@ msgstr ""
 msgid "Press %s"
 msgstr ""
 
+#: src/game.c:8964
+#, c-format
+msgid "Press %s for the menu"
+msgstr ""
+
 #: src/hotkeys.c:119
 msgid "Press a button"
 msgstr ""
@@ -2012,7 +2017,7 @@ msgstr ""
 msgid "Press A to close"
 msgstr ""
 
-#: src/game.c:7788
+#: src/game.c:7792
 msgid "Press any button to play"
 msgstr ""
 
@@ -2133,7 +2138,12 @@ msgstr ""
 msgid "Resume"
 msgstr ""
 
-#: src/game.c:8947
+#: src/game.c:8953
+#, c-format
+msgid "Resumed. Press %s for the menu"
+msgstr ""
+
+#: src/game.c:8952
 msgid "Resumed. Tap or HOME for the menu"
 msgstr ""
 
@@ -2186,7 +2196,7 @@ msgstr ""
 msgid "RetroArch's state folder is found from its settings again: %s."
 msgstr ""
 
-#: src/config.c:556 src/game.c:7771
+#: src/config.c:556 src/game.c:7775
 msgid "Rewind"
 msgstr ""
 
@@ -2244,15 +2254,15 @@ msgstr ""
 msgid "Run at the display's rate: no small regular stutter."
 msgstr ""
 
-#: src/game.c:8362
+#: src/game.c:8366
 msgid "Same as all games again"
 msgstr ""
 
-#: src/game.c:7751
+#: src/game.c:7755
 msgid "Save / load the current slot"
 msgstr ""
 
-#: src/game.c:7751
+#: src/game.c:7755
 msgid "Save / load the quick state"
 msgstr ""
 
@@ -2264,11 +2274,11 @@ msgstr ""
 msgid "Save backups"
 msgstr ""
 
-#: src/game.c:8458
+#: src/game.c:8462
 msgid "Save failed"
 msgstr ""
 
-#: src/game.c:9198 src/game.c:9514 src/game.c:9515
+#: src/game.c:9205 src/game.c:9521 src/game.c:9522
 msgid "Save failed."
 msgstr ""
 
@@ -2313,15 +2323,15 @@ msgstr ""
 msgid "Save while playing"
 msgstr ""
 
-#: src/game.c:8473
+#: src/game.c:8477
 msgid "Saved by another emulator: can't load it"
 msgstr ""
 
-#: src/game.c:8287
+#: src/game.c:8291
 msgid "Saved for all games"
 msgstr ""
 
-#: src/game.c:8287
+#: src/game.c:8291
 msgid "Saved for this game"
 msgstr ""
 
@@ -2329,11 +2339,11 @@ msgstr ""
 msgid "Saved for when a patch is on"
 msgstr ""
 
-#: src/game.c:8478
+#: src/game.c:8482
 msgid "Saved with a GBA BIOS: see Settings > System"
 msgstr ""
 
-#: src/game.c:8480
+#: src/game.c:8484
 msgid "Saved without a GBA BIOS: see Settings > System"
 msgstr ""
 
@@ -2389,11 +2399,11 @@ msgstr ""
 msgid "Screens"
 msgstr ""
 
-#: src/game.c:8529
+#: src/game.c:8533
 msgid "Screenshot failed"
 msgstr ""
 
-#: src/game.c:8529
+#: src/game.c:8533
 msgid "Screenshot saved"
 msgstr ""
 
@@ -2541,7 +2551,7 @@ msgstr ""
 msgid "Skipped in %d s if nothing is pressed"
 msgstr ""
 
-#: src/game.c:8466 src/game.c:9520
+#: src/game.c:8470 src/game.c:9527
 #, c-format
 msgid "Slot %d loaded"
 msgstr ""
@@ -2618,7 +2628,7 @@ msgstr ""
 msgid "Sound delay"
 msgstr ""
 
-#: src/game.c:9888
+#: src/game.c:9895
 #, c-format
 msgid "Sound delay raised to %d ms: the sound kept breaking up"
 msgstr ""
@@ -2643,16 +2653,16 @@ msgstr ""
 msgid "Starting a game picks up where you closed it."
 msgstr ""
 
-#: src/game.c:9202 src/game.c:9520
+#: src/game.c:9209 src/game.c:9527
 msgid "State loaded."
 msgstr ""
 
-#: src/game.c:8454 src/game.c:9514
+#: src/game.c:8458 src/game.c:9521
 #, c-format
 msgid "State saved to slot %d"
 msgstr ""
 
-#: src/game.c:9198 src/game.c:9515
+#: src/game.c:9205 src/game.c:9522
 msgid "State saved."
 msgstr ""
 
@@ -2748,15 +2758,15 @@ msgstr ""
 msgid "Take Screenshot"
 msgstr ""
 
-#: src/game.c:8281
+#: src/game.c:8285
 msgid "Takes effect after you close and restart GBA DS"
 msgstr ""
 
-#: src/game.c:9215
+#: src/game.c:9222
 msgid "Tap again to close GBA DS."
 msgstr ""
 
-#: src/game.c:8957
+#: src/game.c:8963
 msgid "Tap the screen or press HOME for the menu"
 msgstr ""
 
@@ -2806,7 +2816,7 @@ msgstr ""
 msgid "the button that opens GBA DS's menu (Home, Menu or Function)"
 msgstr ""
 
-#: src/game.c:8424
+#: src/game.c:8428
 msgid "the game"
 msgstr ""
 
@@ -2835,7 +2845,7 @@ msgstr ""
 msgid "The map and the logo"
 msgstr ""
 
-#: src/game.c:10317
+#: src/game.c:10324
 msgid "The map refreshes less often, to keep the game at full speed"
 msgstr ""
 
@@ -2909,7 +2919,7 @@ msgstr ""
 msgid "This is v%s. Look for a new version, and download and install it."
 msgstr ""
 
-#: src/game.c:8475
+#: src/game.c:8479
 msgid "This state can't be read"
 msgstr ""
 
@@ -2971,6 +2981,10 @@ msgstr ""
 msgid "Turn second screen"
 msgstr ""
 
+#: src/game.c:7751
+msgid "Turn the second screen"
+msgstr ""
+
 #: src/config.c:565
 msgid "Turn the second screen's pages or view by hand: HOME + A, or its button."
 msgstr ""
@@ -3000,11 +3014,11 @@ msgstr ""
 msgid "Unlocks will be sent when the connection is back"
 msgstr ""
 
-#: src/game.c:9228
+#: src/game.c:9235
 msgid "Unpinned: the bar hides after 5 seconds."
 msgstr ""
 
-#: src/game.c:8422
+#: src/game.c:8426
 msgid "unsaved progress is lost"
 msgstr ""
 
@@ -3202,7 +3216,7 @@ msgstr ""
 msgid "Your own PNGs in gba-ds/overlays/. A screen without one gets the generated bezel in its default colors."
 msgstr ""
 
-#: src/game.c:8422
+#: src/game.c:8426
 msgid "your place is saved"
 msgstr ""
 

@@ -737,7 +737,11 @@ release zip, which replaces the main install.
   whole display and draw_game draws the map there; the map capture keeps
   running). muos-play.sh also sets GBADS_RUMBLE="FILE|ON|OFF" (muOS's
   board/rumble, values as its RUMBLE()), `--home-name=Menu`, first-run
-  `hotkey_states = slot` and `map_scale = fit` on 720x720 / 1024x768.
+  `hotkey_states = slot`, `toggle_button = off` and `map_scale = fit` on 720x720 / 1024x768,
+  `--retroarch-cfg` (muOS's), save states shared once (`state_folder = retroarch` in
+  library.cfg, GBA DS's own slot/auto states copied to RetroArch's folder where it has
+  none, marker `states/muos-states-shared`), and MUOS/bios/gba_bios.bin copied to
+  `<data>/bios/` (gba_bios stays off).
   Shared QoL from this work: rumble (mGBA's mRumbleIntegrator -> ui_rumble,
   sysfs or SDL controller rumble) and tilt/gyro from the left stick
   (`emu_set_sensors`, live core only; Game Boy Player rumble not emulated),
