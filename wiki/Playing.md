@@ -16,7 +16,7 @@ GBA DS opens on a game list on the touchscreen (the bottom screen on the RG DS P
 | A or Start, or tap a game | Play |
 | Drag | Scroll |
 | X, or tap the button left of Settings | Next view: list, two columns, three columns |
-| SELECT, or tap **Settings** | Settings (ROCKNIX: GBA DS in EmulationStation; BananaOS: GBA DS in its GBA list; Controls has Map Buttons and Hotkeys; System has [Save States](#save-states-shared-with-retroarch), RetroArch's State Folder and Updates (Linux) or Folders, RetroAchievements sign-in and Updates (Android)) |
+| SELECT, or tap **Settings** | Settings (ROCKNIX: GBA DS in EmulationStation; BananaOS: GBA DS in its GBA list; Controls has Map Buttons and Hotkeys; System has [Save States](#save-states-shared-with-retroarch), RetroArch's State Folder, [GBA BIOS](#a-state-saved-with-a-gba-bios) and Updates (Linux) or Folders, RetroAchievements sign-in, GBA BIOS and Updates (Android)) |
 | B or HOME | Back to EmulationStation / the launcher |
 
 ## Resume points
@@ -39,6 +39,12 @@ When they're shared:
 - RetroAchievements progress isn't shared: each app keeps its own with its states.
 
 GBA DS works out RetroArch's state folder from RetroArch's own settings, the way RetroArch does: on ROCKNIX `/storage/roms/savestates/gba`, on BananaOS `/data/states/mGBA`. If RetroArch is somewhere GBA DS doesn't look, choose its folder with **RetroArch's State Folder**.
+
+States RetroArch compressed with zstd (RetroArch 1.21 and later can) load like the others.
+
+### A state saved with a GBA BIOS
+
+If RetroArch's mGBA core has a GBA BIOS file set, its states can't go on in GBA DS, which runs games with a built-in BIOS, when the state was saved while the game was inside the BIOS (waiting for the next frame, say, which is much of the time). Loading one says "Saved with a GBA BIOS". To load them, put your own BIOS (the 16 KB file, usually `gba_bios.bin`) in the `bios` folder of GBA DS's data folder, named `gba_bios.bin`, and in the game list's **Settings** > **System** choose **GBA BIOS: Your Own**. GBA DS never looks for a BIOS by itself, and with this left on **Built-in** (the default) nothing is different. The BIOS applies to games you start after switching it. States saved without a BIOS may then not load while it's on: switch it back to **Built-in** for them. GBA DS doesn't come with a BIOS.
 
 ## Updates
 
@@ -129,6 +135,7 @@ From these, what you did can be played back exactly, frame by frame. So when som
 | HOME + X | Quick bar (it shows the FPS too) |
 | HOME + D-pad up | Swap screens |
 | HOME + D-pad down | Toggle the selected shader (off, and back on) |
+| HOME + A | Turn the second screen's page or view (Settings > Second screen > Contextual toggle, off by default; greyed out as not available in games whose second screen has nothing to turn) |
 
 If HOME doesn't open the menu on your device, see `home_button` in [[Settings]]; `menu_combo = select+start` also makes SELECT + START open it.
 
@@ -137,7 +144,7 @@ If HOME doesn't open the menu on your device, see `home_button` in [[Settings]];
 The HOME + button shortcuts above are hotkeys: hold the hotkey button, then press the other one. To change them, open **Settings** in the game list and open **Controls** and choose **Hotkeys** (under Map buttons):
 
 - **Hotkey button**: HOME (the default), SELECT, START or L3. With SELECT or START, the button still reaches the game when you tap it on its own; with L3, a tap on its own still opens the quick bar. HOME opens the menu whichever is the hotkey.
-- **Close emulator** (closes GBA DS), **Close game** (back to the game list), **Quick save state**, **Quick load state**, **Open quick menu** (the quick bar), **Swap screens** and **Toggle selected shader** (off, and back on to the one picked in the pause menu's Shader): the button for each.
+- **Close emulator** (closes GBA DS), **Close game** (back to the game list), **Quick save state**, **Quick load state**, **Open quick menu** (the quick bar), **Swap screens** and **Toggle selected shader** (off, and back on to the one picked in the pause menu's Shader) and **Turn the second screen** (with the contextual toggle on): the button for each.
 
 Pick a row (tap it, or the D-pad and A), then press the button you want for it. Tapping the touchscreen instead gives a shortcut no button (or keeps the hotkey button as it was). A button already used by another shortcut moves to the new one, and the other is left without. **Reset** goes back to HOME and the buttons above; **Done** (or B) keeps your choices for every game, in `states/hotkeys.cfg`. They can also be set in `gba-ds.cfg` (see the Buttons section of [[Settings]]), but once you've used Hotkeys in Settings, its choices win until you delete `hotkeys.cfg`. On Android, HOME is the BACK button (Android keeps HOME for itself), and Hotkeys calls it Back.
 

@@ -1,8 +1,8 @@
 # Changelog
 
-## v1.5.7+muos: GBA DS External Core for muOS (2026-11-22)
+## v1.6+muos: GBA DS External Core for muOS (not yet released)
 
-Upstream GBA DS v1.5.7 (below) with muOS support and these additions.
+Upstream GBA DS v1.6 (below) with muOS support and these additions.
 
 ### New
 - **muOS (MustardOS 2606 Andromeda and 2612 Supernova):** GBA DS External Core, a `.muxapp` for muOS's Archive Manager. It installs the app GBA DS (Applications), which opens the game list and adds **GBA DS - External Core** to muOS's Game Boy Advance cores, so games start from muOS's own lists once it's chosen in Core Assignment (and close back to muOS). Battery saves are shared with RetroArch's mGBA core, screenshots go to muOS's folder, RetroArch's cheats and RetroAchievements account are used, and the buttons work by position whichever controller layout muOS is set to. Tried on muOS 2612 Supernova (Core Assignment, the buttons); 2606 Andromeda is checked against muOS's own scripts but hasn't been tried on a device yet. See the [Install on muOS](https://github.com/fragilesilver/gba-ds-for-MustardOS/blob/main/wiki/Install-on-muOS.md) page.
@@ -23,7 +23,26 @@ Upstream GBA DS v1.5.7 (below) with muOS support and these additions.
 - **Tilt and turn** (Settings > Controls, Left stick): games with a motion sensor, Kirby Tilt 'n' Tumble and Yoshi Topsy-Turvy (tilting) and WarioWare: Twisted! (turning), take it from the left stick. Devices without a stick can't play them.
 - **The map refreshes less often when the device can't keep up**: if the game runs below 95% speed for 3 seconds (not fast-forwarding or rewinding), the map is refreshed half as often, then a third as often, for the rest of that session, with a notice. The game's speed comes first.
 - In the split layout, the Hotkeys, Map Buttons and folder screens use the larger part only (they were drawn in the strip too), and the Hotkeys and folder screens fit it (Reset and Done were cut off).
-- The muOS build reports its version as 1.5.7+muos, and its file is `gba-ds-external-core-v1.5.7+muos.muxapp`.
+- The muOS build reports its version as 1.6+muos, and its file is `gba-ds-external-core-v1.6+muos.muxapp`.
+
+## v1.6 (2026-11-22)
+
+### New games
+- **Kirby & The Amazing Mirror** (USA, Europe and Japan): in an area, the second screen shows its Area map, kept up to date room by room. While the game's own pause screen is open the second screen shows the logo, so the map is never on both screens; the game's pause screen itself is untouched. Checked in the Rainbow Route in the USA release; the Europe and Japan releases have been tried on saved states (the title, file select, tutorial and the pause screen's maps) but not in an area yet.
+- **Kirby: Nightmare in Dream Land** (USA, Europe and Japan): in a level, the second screen shows the pause page for Kirby's copy ability, kept up to date as he copies and drops abilities. While the game's own pause page is open, and everywhere outside a level, it shows the logo. Checked in Vegetable Valley in the USA release; the Europe and Japan releases have been tried on saved states.
+- **F-Zero Climax** (Japan, and in English with the F-Zero Climax English Patch 1.1): the race HUD moves to the second screen as in F-Zero: GP Legend, with the course map twice as big. Grand Prix is checked; Time Attack and Survival haven't been yet.
+
+### Menus and interface
+- **Turn the second screen by hand** (issue #37). Settings > Second screen > **Contextual toggle** (off by default) lets you turn the second screen's pages, or switch it between two views, yourself: press HOME + A, or tap the small key under the picture (**Toggle button**: left, center, right or off; **Auto-rotate** keeps timed pages turning by themselves, or off holds a page until you turn it). In Fire Emblem, Tactics Ogre, Final Fantasy Tactics Advance, Golden Sun, Summon Night, Rebelstar and Banjo-Kazooie: Grunty's Revenge it turns a unit's, a character's or the party's pages (Pokémon: the Party and the Map). In Final Fantasy I and II, IV, V and VI and Breath of Fire I and II it switches between the party screen and the world map. In Harvest Moon: Friends of Mineral Town it switches between the town map and the whole Farm Map (stitched from the game's own scrolling Farm Map and shrunk to fit one screen, without its arrows and heads); in The Minish Cap, between the Map and the Quest Status; in Mother 3, between the area map and the Status, whose party members then turn one by one before the map returns; in Mario & Luigi: Superstar Saga, between the two brothers' Bros. Info. Where a view has to be opened first, the picture fades to black while it is taken (a few seconds) and the old view returns if it can't be (a conversation, an event, a menu). Known: the party picture in the Final Fantasy and Breath of Fire games is the one taken a few refreshes ago, not this instant. Zoids: Legacy, Kingdom Hearts: Chain of Memories and Boktai have nothing worth turning to (their other screens are interactive or never available together), and the toggle's rows, and Pinball two-screen view in games that aren't pinball, are greyed out as not available in games that don't have them.
+- **RetroArch's zstd save states load** (issue #78). States RetroArch 1.21 and later compress with zstd (RZIP version 2) now load, shared or from its folder; GBA DS still saves RetroArch's zlib ones, which every RetroArch reads.
+- **A state saved with a GBA BIOS says so, and there's an option for it** (issue #78). A state from RetroArch's mGBA core with a BIOS file set, saved while the game was inside the BIOS, couldn't load and said only "Load failed". It now says "Saved with a GBA BIOS". New, and off by default: Settings > System > **GBA BIOS** (Linux and Android) runs games with your own BIOS, a file you put in the `bios` folder of GBA DS's data folder as `gba_bios.bin` (GBA DS has none and never looks for one itself). Known: with it on, states saved without a BIOS may not load, and a BIOS applies to games started after switching it.
+
+### Fixes
+- **Kingdom Hearts: Chain of Memories: the menu's World Cards screen no longer shows on the second screen** (found while testing the toggle). It was taken for the World Map and stayed until the next room or until you opened the map.
+
+### Known issues
+- **Turning the second screen by hand:** the button on Android hasn't been looked at, and the Retroid Pocket Duo and Duo Lite, where both screens take touch, haven't been tried. The party picture in the Final Fantasy and Breath of Fire games is the one taken a few refreshes ago, not this instant.
+
 ## v1.5.7 (2026-11-21)
 
 ### New games

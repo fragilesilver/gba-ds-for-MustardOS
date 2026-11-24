@@ -1029,6 +1029,8 @@ static void save_library_cfg(const Config* cfg) {
 	fprintf(f, "state_folder = %s\n", strcmp(cfg->stateFolder, "retroarch") ? "gbads" : "retroarch");
 	/* (Settings > RetroArch's Folder: one chosen by hand, or empty: found from RetroArch's settings) */
 	fprintf(f, "retroarch_state_dir = %s\n", cfg->raStateDir);
+	/* (Settings > GBA BIOS: the player's own, off unless switched on; issue #78) */
+	fprintf(f, "gba_bios = %d\n", cfg->gbaBios ? 1 : 0);
 #ifdef __ANDROID__
 	fprintf(f, "rom_dir = %s\n", cfg->romDir);
 	/* (Settings > Folders; empty: next to the games) */
@@ -1183,10 +1185,10 @@ static int updatesSel;
  * there's one; Map Buttons and Hotkeys; Performance, where GBA DS can set
  * the clock governors (clocks.c); Updates. Android: Folders,
  * RetroAchievements, Map Buttons and Hotkeys, Updates. */
-#define SETTINGS_MAX 8
+#define SETTINGS_MAX 9
 static int nRows = 1; /* rows shown (Back is row nRows) */
 /* (Hotkeys shares Map Buttons' line: the right half of it, under one text) */
-enum { ROW_BANANA, ROW_ES, ROW_MAP, ROW_HOTKEYS, ROW_UPDATES, ROW_FOLDERS, ROW_RA, ROW_ESDE, ROW_PERF, ROW_STATES, ROW_STATES_DIR, ROW_RESET, ROW_DELCFG, ROW_ROTATION, ROW_LANGUAGE };
+enum { ROW_BANANA, ROW_ES, ROW_MAP, ROW_HOTKEYS, ROW_UPDATES, ROW_FOLDERS, ROW_RA, ROW_ESDE, ROW_PERF, ROW_STATES, ROW_STATES_DIR, ROW_RESET, ROW_DELCFG, ROW_ROTATION, ROW_LANGUAGE, ROW_BIOS };
 static int rowKind[SETTINGS_MAX];
 
 /* System's top row: the interface's language, stepped on each press (the setting is the one in config.c's table) */
@@ -1197,6 +1199,58 @@ static const char* lang_label(const Config* cfg) {
 	config_setting_text(cfg, lang_setting(), value, sizeof(value));
 	snprintf(label, sizeof(label), "%s: %s", tr("Language"), value);
 	return label;
+}
+
+/* System's GBA BIOS row (issue #78): the player's own BIOS, for save states made with one (RetroArch's
+ * mGBA core with a BIOS file set). Off unless switched on, and never found by itself: the file is
+ * <data folder>/bios/gba_bios.bin, which the player puts there. Off, games run with mGBA's built-in BIOS
+ * exactly as before. emu_bios_path is what emu_open gives every core. */
+static void bios_file(const Config* cfg, char* out, size_t n) {
+	snprintf(out, n, "%s/bios/gba_bios.bin", cfg->assetDir);
+}
+void library_bios_apply(const Config* cfg) { /* (start-up, and when the row changes) */
+	char file[1100];
+	bios_file(cfg, file, sizeof(file));
+	snprintf(emu_bios_path, sizeof(emu_bios_path), "%s", cfg->gbaBios ? file : "");
+}
+static void bios_switch(Config* cfg) {
+	char file[1100];
+	bios_file(cfg, file, sizeof(file));
+	if (cfg->gbaBios) {
+		cfg->gbaBios = false;
+		snprintf(settingsMsg, sizeof(settingsMsg), "%s", tr("Off: games start with GBA DS's built-in BIOS again."));
+	} else {
+		char dir[1100];
+		snprintf(dir, sizeof(dir), "%s/bios", cfg->assetDir);
+		mkdirs(dir);
+		BiosFile st = emu_bios_check(file);
+		if (st == BIOS_FILE_OK) {
+			cfg->gbaBios = true;
+			snprintf(settingsMsg, sizeof(settingsMsg), "%s", tr("On: games start with your BIOS from now on. A state saved with the other BIOS may not load."));
+		} else {
+			snprintf(settingsMsg, sizeof(settingsMsg), "%s",
+			         st == BIOS_FILE_MISSING ? tr("Still off: put your GBA BIOS in the bios folder of GBA DS's data folder, named gba_bios.bin.")
+			         : st == BIOS_FILE_SIZE  ? tr("Still off: gba_bios.bin isn't a GBA BIOS (it should be 16 KB).")
+			         : st == BIOS_FILE_BROKEN ? tr("Still off: that is a known broken BIOS dump.")
+			                                  : tr("Still off: gba_bios.bin isn't a GBA BIOS."));
+		}
+	}
+	library_bios_apply(cfg);
+	save_library_cfg(cfg);
+	fprintf(stderr, "library: GBA BIOS %s\n", cfg->gbaBios ? "on" : "off");
+}
+static const char* bios_label(const Config* cfg) { return cfg->gbaBios ? N_("GBA BIOS: Your Own") : N_("GBA BIOS: Built-in"); }
+static const char* bios_note(const Config* cfg, SDL_Color* col) {
+	if (cfg->gbaBios) {
+		char file[1100];
+		bios_file(cfg, file, sizeof(file));
+		if (emu_bios_check(file) != BIOS_FILE_OK) {
+			*col = C_GOLD;
+			return tr("gba_bios.bin can't be used now, so games run with the built-in BIOS. Put it back in the bios folder.");
+		}
+		return tr("Games start with the GBA BIOS in gba_bios.bin, in the bios folder of GBA DS's data folder.");
+	}
+	return tr("Use your own GBA BIOS (gba_bios.bin, in the bios folder of GBA DS's data folder) instead of the built-in one. Only needed for save states made with one.");
 }
 
 #ifdef __ANDROID__
@@ -1223,6 +1277,7 @@ static void settings_rows(const Config* cfg) {
 		/* one display (a phone, a Surface Duo): hold the window portrait or landscape (issue #60) */
 		if (android[i] == ROW_RA && android_one_display()) rowKind[nRows++] = ROW_ROTATION;
 	}
+	rowKind[nRows++] = ROW_BIOS; /* (issue #78) */
 	rowKind[nRows++] = ROW_RESET;
 	rowKind[nRows++] = ROW_DELCFG;
 #else
@@ -1238,6 +1293,7 @@ static void settings_rows(const Config* cfg) {
 	if (banana_present()) rowKind[nRows++] = ROW_BANANA;
 	else if (es_present(cfg)) rowKind[nRows++] = ROW_ES;
 #endif
+	rowKind[nRows++] = ROW_BIOS; /* (issue #78) */
 	rowKind[nRows++] = ROW_RESET;
 	rowKind[nRows++] = ROW_DELCFG;
 #endif
@@ -1384,7 +1440,7 @@ static const SetPage setPages[SP_SYSTEM] = {
 	{ "Screens", N_("Placement, overlays"), { "layout", "peek_button", "peek_toggle", "swap", "screen_match", "screen_placement", "overlays", "overlay_screens", "bezel_logo", "brightness_top", "brightness_bottom" } },
 	{ "Controls", N_("Stick, buttons, hotkeys"), { "left_stick_dpad", "ab_swap", "button_right", "button_bottom", "button_top", "button_left", "button_l", "button_r", "button_dpad_up", "button_dpad_down", "button_dpad_left", "button_dpad_right", "turbo_rate", "hotkey_states", "rumble", "tilt", "@map", "@hotkeys" } },
 	{ N_("Speed and sound"), N_("Rewind, fast forward"), { "show_fps", "match_display", "frame_buffer", "rewind", "rewind_seconds", "fast_forward", "fast_forward_toggle", "audio_latency", "performance" } },
-	{ "Second screen", N_("The map and the logo"), { "map", "map_interval", "pinball_live" } },
+	{ "Second screen", N_("The map and the logo"), { "map", "map_interval", "toggle", "auto_rotate", "toggle_button", "pinball_live" } },
 };
 static int setPage = SP_HOME; /* SP_HOME, a category, or SP_SYSTEM (the older panel) */
 static int setSel;
@@ -1768,6 +1824,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	for (int i = 0; i < nRows; ++i) {
 		int k = rowKind[i];
 		labels[i] = k == ROW_LANGUAGE ? lang_label(cfg)
+		          : k == ROW_BIOS    ? bios_label(cfg)
 		          : k == ROW_ESDE    ? (esde_integration_on() ? N_("GBA DS in ES-DE: On"): N_("GBA DS in ES-DE: Off"))
 		          : k == ROW_FOLDERS ? "Folders"
 		          : k == ROW_RA      ? raLabel
@@ -1784,6 +1841,9 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	switch (rowKind[sel]) {
 	case ROW_LANGUAGE:
 		text = N_("Automatic follows the system. Text that isn't translated yet stays in English.");
+		break;
+	case ROW_BIOS:
+		text = bios_note(cfg, &col);
 		break;
 	case ROW_ESDE:
 		text = N_("Makes GBA DS the emulator for Game Boy Advance games in ES-DE. For a game it doesn't support, "
@@ -1839,6 +1899,9 @@ static void settings_activate(Config* cfg, int row) {
 	switch (rowKind[row]) {
 	case ROW_LANGUAGE:
 		if (config_setting_step(cfg, lang_setting(), 1)) setting_changed(cfg, lang_setting());
+		return;
+	case ROW_BIOS:
+		bios_switch(cfg);
 		return;
 	case ROW_ESDE:
 		esde_integration_set(!esde_integration_on(), settingsMsg, sizeof(settingsMsg));
@@ -2195,6 +2258,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	states_dir_text(cfg, statesDirText, sizeof(statesDirText));
 	for (int i = 0; i < nRows; ++i) {
 		labels[i] = rowKind[i] == ROW_LANGUAGE ? lang_label(cfg)
+		          : rowKind[i] == ROW_BIOS   ? bios_label(cfg)
 		          : rowKind[i] == ROW_BANANA ? (banana_integration_on() ? N_("GBA DS in BananaOS's GBA list: On"): N_("GBA DS in BananaOS's GBA list: Off"))
 		          : rowKind[i] == ROW_ES     ? (es_integration_on(cfg) ? N_("GBA DS in EmulationStation: On"): N_("GBA DS in EmulationStation: Off"))
 		          : rowKind[i] == ROW_RESET  ? (confirmRow == i ? N_("Are you sure? Reset settings"): N_("Reset settings to defaults"))
@@ -2221,6 +2285,8 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 	                                         "the smoothest play, but the battery runs down faster and the device gets warmer."): N_("The system sets the speed, as for its other emulators. If games stutter or "
 	                                         "the sound breaks up, try Set to Max."))
 	                       : update_blurb();
+	SDL_Color biosCol = C_DIM;
+	if (rowKind[i] == ROW_BIOS) text = bios_note(cfg, &biosCol);
 	/* a message from switching a row (settings_activate): in place of its text */
 	bool msg = settingsMsg[0] && settingsMsgRow == i;
 	if (msg) text = settingsMsg;
@@ -2230,7 +2296,7 @@ static void draw_settings(const Config* cfg, int scr, int sel) {
 		          "NOTE: Unsupported games will play in RetroArch, but without BananaOS's own "
 		          "second screen (its game panel and companions).", C_TEXT, TF_BOLD);
 	else
-		draw_system_note(scr, &g, text, msg ? C_GOLD : C_DIM);
+		draw_system_note(scr, &g, text, msg ? C_GOLD : biosCol);
 }
 
 static void settings_activate(Config* cfg, int row) {
@@ -2246,6 +2312,7 @@ static void settings_activate(Config* cfg, int row) {
 	} else if (rowKind[row] == ROW_UPDATES) updatesOpen = true, updatesNotice = false, updatesSel = 0;
 	else if (rowKind[row] == ROW_BANANA) banana_integration_set(!banana_integration_on(), settingsMsg, sizeof(settingsMsg));
 	else if (rowKind[row] == ROW_ES) es_integration_set(cfg, !es_integration_on(cfg), settingsMsg, sizeof(settingsMsg));
+	else if (rowKind[row] == ROW_BIOS) bios_switch(cfg);
 	else if (rowKind[row] == ROW_STATES) states_switch(cfg);
 	else if (rowKind[row] == ROW_STATES_DIR) states_dir_pick(cfg);
 	else if (rowKind[row] == ROW_PERF) {
